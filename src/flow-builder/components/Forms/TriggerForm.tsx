@@ -49,10 +49,12 @@ const TriggerForm: React.FC<TriggerFormProps> = ({
       {config?.event === "webhook" && (
         <TextInput
           label="Webhook URL"
+          labelClassName="block text-xs font-medium text-gray-700 mb-1"
           type="url"
           value={config?.webhookUrl || ""}
           onChange={(value) => updateConfig("webhookUrl", value)}
           placeholder="https://api.example.com/webhook"
+          size="sm"
         />
       )}
 
@@ -60,9 +62,11 @@ const TriggerForm: React.FC<TriggerFormProps> = ({
         <div>
           <TextInput
             label="Schedule (Cron Format)"
+            labelClassName="block text-xs font-medium text-gray-700 mb-1"
             value={config?.schedule || ""}
             onChange={(value) => updateConfig("schedule", value)}
             placeholder="0 9 * * * (Every day at 9 AM)"
+            size="sm"
           />
           <div className="text-xs text-gray-500 mt-1">
             Format: minute hour day month weekday

@@ -93,17 +93,21 @@ const MessageForm: React.FC<MessageFormProps> = ({
         <>
           <TextInput
             label="File URL"
+            labelClassName="block text-xs font-medium text-gray-700 mb-1"
             type="url"
             value={config?.fileUrl || ""}
             onChange={(value) => updateConfig("fileUrl", value)}
             placeholder="https://example.com/file.jpg"
+            size="sm"
           />
 
           <TextInput
             label="File Name"
+            labelClassName="block text-xs font-medium text-gray-700 mb-1"
             value={config?.fileName || ""}
             onChange={(value) => updateConfig("fileName", value)}
             placeholder="filename.jpg"
+            size="sm"
           />
 
           {currentType === MessageType.FILE && (

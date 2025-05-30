@@ -142,9 +142,11 @@ const DelayForm: React.FC<DelayFormProps> = ({
         <div>
           <TextInput
             label="Variable Name"
+            labelClassName="block text-xs font-medium text-gray-700 mb-1"
             value={config?.delayVariable || ""}
             onChange={(value) => updateConfig("delayVariable", value)}
             placeholder="wait_time"
+            size="sm"
           />
           <div className="text-xs text-gray-500 mt-1">
             Variable should contain delay duration in milliseconds
@@ -163,9 +165,11 @@ const DelayForm: React.FC<DelayFormProps> = ({
 
       <TextInput
         label="Description"
+        labelClassName="block text-xs font-medium text-gray-700 mb-1"
         value={config?.description || ""}
         onChange={(value) => updateConfig("description", value)}
         placeholder="Brief pause before next message"
+        size="sm"
       />
 
       {/* Preview */}

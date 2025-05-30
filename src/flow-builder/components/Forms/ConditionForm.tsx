@@ -96,7 +96,7 @@ export const ConditionForm: React.FC<ConditionFormProps> = ({
             placeholder="e.g., 'Adult Path', 'Premium User'"
             value={condition.label}
             onChange={(value) => updateCondition(index, "label", value)}
-            className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+            size="sm"
           />
 
           <div>
@@ -106,7 +106,7 @@ export const ConditionForm: React.FC<ConditionFormProps> = ({
               placeholder="e.g., 'user_age', 'user_type'"
               value={condition.variable}
               onChange={(value) => updateCondition(index, "variable", value)}
-              className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+              size="sm"
             />
             <datalist id={`variables-${index}`}>
               {variables?.map((variable) => (
@@ -122,11 +122,15 @@ export const ConditionForm: React.FC<ConditionFormProps> = ({
             label="Operator"
             labelClassName="block text-xs font-medium text-gray-700 mb-1"
             value={condition.operator}
-            onChange={(value) => updateCondition(index, "operator", value as ConditionOperator)}
+            onChange={(value) =>
+              updateCondition(index, "operator", value as ConditionOperator)
+            }
             className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
             options={ConditionOperators.map((op) => ({
               value: op,
-              label: op.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase()),
+              label: op
+                .replace("_", " ")
+                .replace(/\b\w/g, (l) => l.toUpperCase()),
             }))}
           />
 
@@ -136,7 +140,7 @@ export const ConditionForm: React.FC<ConditionFormProps> = ({
             placeholder="Comparison value"
             value={condition.value as string}
             onChange={(value) => updateCondition(index, "value", value)}
-            className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+            size="sm"
           />
 
           <div className="bg-blue-50 p-2 rounded text-xs text-blue-700">

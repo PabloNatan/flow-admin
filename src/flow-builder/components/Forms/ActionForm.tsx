@@ -171,10 +171,12 @@ const ActionForm: React.FC<ActionFormProps> = ({
           <div>
             <TextInput
               label="URL"
+              labelClassName="block text-xs font-medium text-gray-700 mb-1"
               type="url"
               value={config?.url || ""}
               onChange={(value) => updateConfig("url", value)}
               placeholder="https://api.example.com/endpoint"
+              size="sm"
             />
             <div className="text-xs text-gray-500 mt-1">
               Use {`variable_name`} for dynamic URLs
@@ -293,17 +295,21 @@ const ActionForm: React.FC<ActionFormProps> = ({
         <>
           <TextInput
             label="To Email"
+            labelClassName="block text-xs font-medium text-gray-700 mb-1"
             type="email"
             value={config?.to || ""}
             onChange={(value) => updateConfig("to", value)}
             placeholder="{{user.email}} or specific@email.com"
+            size="sm"
           />
 
           <TextInput
             label="Subject"
+            labelClassName="block text-xs font-medium text-gray-700 mb-1"
             value={config?.subject || ""}
             onChange={(value) => updateConfig("subject", value)}
             placeholder="Welcome {{user.name}}!"
+            size="sm"
           />
 
           <div>
@@ -361,10 +367,12 @@ const ActionForm: React.FC<ActionFormProps> = ({
           <div>
             <TextInput
               label="Phone Number"
+              labelClassName="block text-xs font-medium text-gray-700 mb-1"
               type="tel"
               value={config?.phoneNumber || ""}
               onChange={(value) => updateConfig("phoneNumber", value)}
               placeholder="{{user.phone}} or +1234567890"
+              size="sm"
             />
             <div className="text-xs text-gray-500 mt-1">
               Include country code for international numbers

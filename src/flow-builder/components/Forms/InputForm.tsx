@@ -70,9 +70,11 @@ export const InputForm: React.FC<InputFormProps> = ({
       <div>
         <TextInput
           label="Variable Name"
+          labelClassName="block text-xs font-medium text-gray-700 mb-1"
           value={config?.variableName || ""}
           onChange={(value) => updateConfig("variableName", value)}
           placeholder="user_response"
+          size="sm"
         />
         <div className="text-xs text-gray-500 mt-1">
           This will store the user's response
@@ -117,8 +119,8 @@ export const InputForm: React.FC<InputFormProps> = ({
               labelClassName="block text-xs font-medium text-gray-700 mb-1"
               value={config?.validation?.pattern || ""}
               onChange={(value) => updateValidation("pattern", value)}
-              className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-mono"
               placeholder="^[a-zA-Z\s]+$"
+              size="sm"
             />
           </>
         )}
@@ -157,8 +159,8 @@ export const InputForm: React.FC<InputFormProps> = ({
                     .filter(Boolean)
                 )
               }
-              className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
               placeholder="image/*, application/pdf"
+              size="sm"
             />
 
             <div>
@@ -182,8 +184,8 @@ export const InputForm: React.FC<InputFormProps> = ({
           labelClassName="block text-xs font-medium text-gray-700 mb-1"
           value={config?.validation?.errorMessage || ""}
           onChange={(value) => updateValidation("errorMessage", value)}
-          className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
           placeholder="Please enter a valid value"
+          size="sm"
         />
       </div>
     </>
