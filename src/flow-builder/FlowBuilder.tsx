@@ -69,12 +69,15 @@ const FlowBuilder: React.FC = () => {
   // Handle edge connection
   const onConnect: OnConnect = useCallback(
     (params: Connection) => {
+      if (!params.source || !params.target) return;
+      
       const newEdge: Edge = {
-        ...params,
         id: `edge-${Date.now()}`,
+        source: params.source,
+        target: params.target,
+        sourceHandle: params.sourceHandle,
+        targetHandle: params.targetHandle,
         type: "smoothstep",
-        source: "any",
-        target: "any",
         animated: true,
         markerEnd: { type: MarkerType.ArrowClosed },
       };

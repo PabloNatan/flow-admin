@@ -12,6 +12,7 @@ import {
   InputValidation,
   ResponseType,
 } from "@/flow-builder/types/flow.types";
+import { TextInput, NumberInput, Select, Checkbox, Textarea } from "../core";
 
 interface ResponseTypeOption {
   value: ResponseType;
@@ -48,47 +49,29 @@ export const InputForm: React.FC<InputFormProps> = ({
 
   return (
     <>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Prompt
-        </label>
-        <textarea
-          value={config?.prompt || ""}
-          onChange={(e) => updateConfig("prompt", e.target.value)}
-          rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="What question would you like to ask?"
-        />
-      </div>
+      <Textarea
+        label="Prompt"
+        value={config?.prompt || ""}
+        onChange={(value) => updateConfig("prompt", value)}
+        rows={3}
+        placeholder="What question would you like to ask?"
+      />
+
+      <Select
+        label="Response Type"
+        value={currentType}
+        onChange={(value) => updateConfig("responseType", value as ResponseType)}
+        options={responseTypes.map((type) => ({
+          value: type.value,
+          label: type.label,
+        }))}
+      />
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Response Type
-        </label>
-        <select
-          value={currentType}
-          onChange={(e) =>
-            updateConfig("responseType", e.target.value as ResponseType)
-          }
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          {responseTypes.map((type) => (
-            <option key={type.value} value={type.value}>
-              {type.label}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Variable Name
-        </label>
-        <input
-          type="text"
+        <TextInput
+          label="Variable Name"
           value={config?.variableName || ""}
-          onChange={(e) => updateConfig("variableName", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(value) => updateConfig("variableName", value)}
           placeholder="user_response"
         />
         <div className="text-xs text-gray-500 mt-1">
@@ -96,18 +79,12 @@ export const InputForm: React.FC<InputFormProps> = ({
         </div>
       </div>
 
-      <div className="flex items-center">
-        <input
-          type="checkbox"
-          id="required"
-          checked={config?.required || false}
-          onChange={(e) => updateConfig("required", e.target.checked)}
-          className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-        />
-        <label htmlFor="required" className="text-sm text-gray-700">
-          Required field
-        </label>
-      </div>
+      <Checkbox
+        id="required"
+        checked={config?.required || false}
+        onChange={(checked) => updateConfig("required", checked)}
+        label="Required field"
+      />
 
       {/* Validation Settings */}
       <div className="border-t border-gray-200 pt-4">
@@ -117,131 +94,80 @@ export const InputForm: React.FC<InputFormProps> = ({
           currentType === ResponseType.EMAIL) && (
           <>
             <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  Min Length
-                </label>
-                <input
-                  type="number"
-                  value={config?.validation?.minLength || ""}
-                  onChange={(e) =>
-                    updateValidation(
-                      "minLength",
-                      parseInt(e.target.value) || undefined
-                    )
-                  }
-                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                  min="0"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  Max Length
-                </label>
-                <input
-                  type="number"
-                  value={config?.validation?.maxLength || ""}
-                  onChange={(e) =>
-                    updateValidation(
-                      "maxLength",
-                      parseInt(e.target.value) || undefined
-                    )
-                  }
-                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                  min="1"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Pattern (Regex)
-              </label>
-              <input
-                type="text"
-                value={config?.validation?.pattern || ""}
-                onChange={(e) => updateValidation("pattern", e.target.value)}
-                className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-mono"
-                placeholder="^[a-zA-Z\s]+$"
+              <NumberInput
+                label="Min Length"
+                labelClassName="block text-xs font-medium text-gray-700 mb-1"
+                value={config?.validation?.minLength || ""}
+                onChange={(value) => updateValidation("minLength", value)}
+                parseFunction={(val) => parseInt(val) || undefined}
+                min={0}
+              />
+              <NumberInput
+                label="Max Length"
+                labelClassName="block text-xs font-medium text-gray-700 mb-1"
+                value={config?.validation?.maxLength || ""}
+                onChange={(value) => updateValidation("maxLength", value)}
+                parseFunction={(val) => parseInt(val) || undefined}
+                min={1}
               />
             </div>
+
+            <TextInput
+              label="Pattern (Regex)"
+              labelClassName="block text-xs font-medium text-gray-700 mb-1"
+              value={config?.validation?.pattern || ""}
+              onChange={(value) => updateValidation("pattern", value)}
+              className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-mono"
+              placeholder="^[a-zA-Z\s]+$"
+            />
           </>
         )}
 
         {currentType === ResponseType.NUMBER && (
           <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Min Value
-              </label>
-              <input
-                type="number"
-                value={config?.validation?.min || ""}
-                onChange={(e) =>
-                  updateValidation(
-                    "min",
-                    parseFloat(e.target.value) || undefined
-                  )
-                }
-                className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Max Value
-              </label>
-              <input
-                type="number"
-                value={config?.validation?.max || ""}
-                onChange={(e) =>
-                  updateValidation(
-                    "max",
-                    parseFloat(e.target.value) || undefined
-                  )
-                }
-                className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-              />
-            </div>
+            <NumberInput
+              label="Min Value"
+              labelClassName="block text-xs font-medium text-gray-700 mb-1"
+              value={config?.validation?.min || ""}
+              onChange={(value) => updateValidation("min", value)}
+              parseFunction={(val) => parseFloat(val) || undefined}
+            />
+            <NumberInput
+              label="Max Value"
+              labelClassName="block text-xs font-medium text-gray-700 mb-1"
+              value={config?.validation?.max || ""}
+              onChange={(value) => updateValidation("max", value)}
+              parseFunction={(val) => parseFloat(val) || undefined}
+            />
           </div>
         )}
 
         {currentType === ResponseType.FILE && (
           <>
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Allowed File Types
-              </label>
-              <input
-                type="text"
-                value={config?.validation?.allowedTypes?.join(", ") || ""}
-                onChange={(e) =>
-                  updateValidation(
-                    "allowedTypes",
-                    e.target.value
-                      .split(",")
-                      .map((type) => type.trim())
-                      .filter(Boolean)
-                  )
-                }
-                className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                placeholder="image/*, application/pdf"
-              />
-            </div>
+            <TextInput
+              label="Allowed File Types"
+              labelClassName="block text-xs font-medium text-gray-700 mb-1"
+              value={config?.validation?.allowedTypes?.join(", ") || ""}
+              onChange={(value) =>
+                updateValidation(
+                  "allowedTypes",
+                  value
+                    .split(",")
+                    .map((type) => type.trim())
+                    .filter(Boolean)
+                )
+              }
+              className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+              placeholder="image/*, application/pdf"
+            />
 
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Max File Size (bytes)
-              </label>
-              <input
-                type="number"
+              <NumberInput
+                label="Max File Size (bytes)"
+                labelClassName="block text-xs font-medium text-gray-700 mb-1"
                 value={config?.validation?.maxFileSize || ""}
-                onChange={(e) =>
-                  updateValidation(
-                    "maxFileSize",
-                    parseInt(e.target.value) || undefined
-                  )
-                }
-                className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                onChange={(value) => updateValidation("maxFileSize", value)}
+                parseFunction={(val) => parseInt(val) || undefined}
                 placeholder="5242880"
               />
               <div className="text-xs text-gray-500 mt-1">
@@ -251,18 +177,14 @@ export const InputForm: React.FC<InputFormProps> = ({
           </>
         )}
 
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            Error Message
-          </label>
-          <input
-            type="text"
-            value={config?.validation?.errorMessage || ""}
-            onChange={(e) => updateValidation("errorMessage", e.target.value)}
-            className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-            placeholder="Please enter a valid value"
-          />
-        </div>
+        <TextInput
+          label="Error Message"
+          labelClassName="block text-xs font-medium text-gray-700 mb-1"
+          value={config?.validation?.errorMessage || ""}
+          onChange={(value) => updateValidation("errorMessage", value)}
+          className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+          placeholder="Please enter a valid value"
+        />
       </div>
     </>
   );
