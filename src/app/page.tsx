@@ -1,13 +1,10 @@
 "use client";
-import FlowBuilder from "@/flow-builder/FlowBuilder";
-import { ReactFlowProvider } from "reactflow";
+import FlowApp from "@/flow-builder/FlowApp";
 
 export default function Home() {
   return (
-    <ReactFlowProvider>
-      <div className="App">
-        <FlowBuilder />
-      </div>
-    </ReactFlowProvider>
+    <div className="App">
+      <FlowApp />
+    </div>
   );
 }

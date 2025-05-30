@@ -257,12 +257,9 @@ export interface FlowListResponse {
     nodeCount: number;
     sessionCount: number;
   }>;
-  pagination: {
-    total: number;
-    page: number;
-    limit: number;
-    pages: number;
-  };
+  currentPage: number;
+  totalCountOfRegisters: number;
+  totalPages: number;
 }
 
 export interface FlowResponse {

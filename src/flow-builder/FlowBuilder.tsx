@@ -22,6 +22,7 @@ import ReactFlow, {
 
 import CustomNode from "./components/Nodes/CustomNode";
 import { FlowVariable, NodeType, VariableType } from "./types/flow.types";
+import { flowApi, ApiError, transformApiNodeToReactFlow, transformApiEdgeToReactFlow, transformReactFlowNodeToApi, transformReactFlowEdgeToApi } from "./services/api";
 import { getDefaultConfig, nodeTypes } from "./types/nodeType.types";
 import FlowToolbar from "./components/FlowBuilder/FlowToolbar";
 import NodePalette from "./components/FlowBuilder/NodePalette";
@@ -36,12 +37,20 @@ const nodeTypes_reactflow = {
   custom: CustomNode,
 };
 
-const FlowBuilder: React.FC = () => {
+interface FlowBuilderProps {
+  flowId?: string | null;
+  onBackToList?: () => void;
+}
+
+const FlowBuilder: React.FC<FlowBuilderProps> = ({ flowId, onBackToList }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [flowName, setFlowName] = useState<string>("New Flow");
+  const [flowId_state, setFlowId] = useState<string | null>(flowId || null);
+  const [flowDescription, setFlowDescription] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const [variables, setVariables] = useState<FlowVariable[]>([]);
   const [isDirty, setIsDirty] = useState<boolean>(false);
 
@@ -60,6 +69,72 @@ const FlowBuilder: React.FC = () => {
   const markDirty = useCallback((): void => {
     setIsDirty(true);
   }, []);
+
+  // Load flow data from API
+  const loadFlow = useCallback(async (id: string) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const response = await flowApi.getFlow(id);
+      
+      // Transform API data to React Flow format
+      const transformedNodes = response.nodes.map(transformApiNodeToReactFlow);
+      const transformedEdges = response.edges.map(transformApiEdgeToReactFlow);
+      
+      setNodes(transformedNodes);
+      setEdges(transformedEdges);
+      setFlowName(response.name);
+      setFlowDescription(response.description || "");
+      setVariables(response.variables || []);
+      setFlowId(response.id);
+      setIsDirty(false);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(`Failed to load flow: ${err.message}`);
+      } else {
+        setError('Failed to load flow. Please try again.');
+      }
+      console.error('Error loading flow:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [setNodes, setEdges]);
+
+  // Save flow to API
+  const saveFlow = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const flowData = {
+        name: flowName,
+        description: flowDescription,
+        nodes: nodes.map(transformReactFlowNodeToApi),
+        edges: edges.map(transformReactFlowEdgeToApi),
+        variables,
+      };
+      
+      let response;
+      if (flowId_state) {
+        response = await flowApi.updateFlow(flowId_state, flowData);
+      } else {
+        response = await flowApi.createFlow(flowData);
+        setFlowId(response.id);
+      }
+      
+      setIsDirty(false);
+      return response;
+    } catch (err) {
+      if (err instanceof ApiError) {
+        throw new Error(`Failed to save flow: ${err.message}`);
+      } else {
+        throw new Error('Failed to save flow. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, [flowName, flowDescription, nodes, edges, variables, flowId_state]);
 
   // Handle node selection
   const onNodeClick: NodeMouseHandler = useCallback((_, node) => {
@@ -203,38 +278,13 @@ const FlowBuilder: React.FC = () => {
 
   // Flow actions
   const handleSave = async (): Promise<void> => {
-    setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const flowData = {
-        name: flowName,
-        nodes: nodes.map((node) => ({
-          id: node.id,
-          type: node.data.type,
-          position: node.position,
-          config: node.data.config,
-        })),
-        edges: edges.map((edge) => ({
-          id: edge.id,
-          sourceId: edge.source,
-          targetId: edge.target,
-          sourceHandle: edge.sourceHandle,
-          targetHandle: edge.targetHandle,
-        })),
-        variables,
-      };
-
-      console.log("Saving flow:", flowData);
+      await saveFlow();
       alert("Flow saved successfully!");
-      setIsDirty(false);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
       alert("Error saving flow: " + errorMessage);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -349,6 +399,13 @@ const FlowBuilder: React.FC = () => {
     alert(message);
   };
 
+  // Load flow on mount if flowId is provided
+  React.useEffect(() => {
+    if (flowId && flowId !== flowId_state) {
+      loadFlow(flowId);
+    }
+  }, [flowId, flowId_state, loadFlow]);
+
   // Auto-update variables based on INPUT nodes
   React.useEffect(() => {
     const inputNodes = nodes.filter((n) => n.data.type === NodeType.INPUT);
@@ -371,10 +428,14 @@ const FlowBuilder: React.FC = () => {
         onSave={handleSave}
         onTest={handleTest}
         onValidate={handleValidate}
+        onBackToList={onBackToList}
         isLoading={isLoading}
         flowName={flowName}
         setFlowName={setFlowName}
+        flowDescription={flowDescription}
+        setFlowDescription={setFlowDescription}
         isDirty={isDirty}
+        error={error}
       />
 
       <div className="flex-1 flex overflow-hidden">
