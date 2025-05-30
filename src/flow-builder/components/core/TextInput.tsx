@@ -5,7 +5,7 @@ interface TextInputProps {
   onChange: (value: string) => void;
   placeholder?: string;
   className?: string;
-  type?: "text" | "email" | "password";
+  type?: "text" | "email" | "password" | "url" | "tel";
   label?: string;
   labelClassName?: string;
 }

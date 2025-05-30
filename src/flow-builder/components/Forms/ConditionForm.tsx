@@ -8,6 +8,7 @@ import {
   ConditionOperators,
   FlowVariable,
 } from "@/flow-builder/types/flow.types";
+import { TextInput, Select } from "../core";
 
 interface ConditionFormProps {
   selectedNode: Node;
@@ -89,31 +90,22 @@ export const ConditionForm: React.FC<ConditionFormProps> = ({
             </button>
           </div>
 
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">
-              Path Label
-            </label>
-            <input
-              type="text"
-              placeholder="e.g., 'Adult Path', 'Premium User'"
-              value={condition.label}
-              onChange={(e) => updateCondition(index, "label", e.target.value)}
-              className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
-          </div>
+          <TextInput
+            label="Path Label"
+            labelClassName="block text-xs font-medium text-gray-700 mb-1"
+            placeholder="e.g., 'Adult Path', 'Premium User'"
+            value={condition.label}
+            onChange={(value) => updateCondition(index, "label", value)}
+            className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+          />
 
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">
-              Variable Name
-            </label>
-            <input
-              type="text"
-              list={`variables-${index}`}
+            <TextInput
+              label="Variable Name"
+              labelClassName="block text-xs font-medium text-gray-700 mb-1"
               placeholder="e.g., 'user_age', 'user_type'"
               value={condition.variable}
-              onChange={(e) =>
-                updateCondition(index, "variable", e.target.value)
-              }
+              onChange={(value) => updateCondition(index, "variable", value)}
               className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
             <datalist id={`variables-${index}`}>
@@ -126,43 +118,26 @@ export const ConditionForm: React.FC<ConditionFormProps> = ({
             </datalist>
           </div>
 
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">
-              Operator
-            </label>
-            <select
-              value={condition.operator}
-              onChange={(e) =>
-                updateCondition(
-                  index,
-                  "operator",
-                  e.target.value as ConditionOperator
-                )
-              }
-              className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              {ConditionOperators.map((op) => (
-                <option key={op} value={op}>
-                  {op
-                    .replace("_", " ")
-                    .replace(/\b\w/g, (l) => l.toUpperCase())}
-                </option>
-              ))}
-            </select>
-          </div>
+          <Select
+            label="Operator"
+            labelClassName="block text-xs font-medium text-gray-700 mb-1"
+            value={condition.operator}
+            onChange={(value) => updateCondition(index, "operator", value as ConditionOperator)}
+            className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+            options={ConditionOperators.map((op) => ({
+              value: op,
+              label: op.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase()),
+            }))}
+          />
 
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">
-              Value
-            </label>
-            <input
-              type="text"
-              placeholder="Comparison value"
-              value={condition.value as string}
-              onChange={(e) => updateCondition(index, "value", e.target.value)}
-              className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
-          </div>
+          <TextInput
+            label="Value"
+            labelClassName="block text-xs font-medium text-gray-700 mb-1"
+            placeholder="Comparison value"
+            value={condition.value as string}
+            onChange={(value) => updateCondition(index, "value", value)}
+            className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+          />
 
           <div className="bg-blue-50 p-2 rounded text-xs text-blue-700">
             <strong>Logic:</strong> If {condition.variable || "variable"}{" "}
@@ -174,19 +149,15 @@ export const ConditionForm: React.FC<ConditionFormProps> = ({
 
       <div className="border-t border-gray-200 pt-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Default Path Label
-          </label>
-          <input
-            type="text"
+          <TextInput
+            label="Default Path Label"
             value={config?.defaultCondition?.label || "Default"}
-            onChange={(e) =>
+            onChange={(value) =>
               updateConfig("defaultCondition", {
                 id: "default",
-                label: e.target.value,
+                label: value,
               })
             }
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Default path (when no conditions match)"
           />
           <div className="text-xs text-gray-500 mt-1">

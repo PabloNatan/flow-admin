@@ -1,6 +1,7 @@
 import { BaseDelayConfig, DelayType } from "@/flow-builder/types/flow.types";
 import React from "react";
 import { Node } from "reactflow";
+import { Select, NumberInput, TextInput } from "../core";
 
 interface DelayOption {
   label: string;
@@ -52,40 +53,30 @@ const DelayForm: React.FC<DelayFormProps> = ({
 
   return (
     <>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Delay Type
-        </label>
-        <select
-          value={delayType}
-          onChange={(e) => handleDelayTypeChange(e.target.value as DelayType)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value={DelayType.FIXED}>Fixed Delay</option>
-          <option value={DelayType.VARIABLE}>Variable Delay</option>
-        </select>
-      </div>
+      <Select
+        label="Delay Type"
+        value={delayType}
+        onChange={(value) => handleDelayTypeChange(value as DelayType)}
+        options={[
+          { value: DelayType.FIXED, label: "Fixed Delay" },
+          { value: DelayType.VARIABLE, label: "Variable Delay" },
+        ]}
+      />
 
       {delayType === DelayType.FIXED ? (
         <>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Delay Duration
-            </label>
-            <div className="space-y-2">
-              <input
-                type="number"
-                value={delayMs}
-                onChange={(e) => handleDelayMsChange(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                min="100"
-                step="100"
-                placeholder="1000"
-              />
-              <div className="text-xs text-gray-500">
-                Duration in milliseconds. Current:{" "}
-                <span className="font-medium">{formatDelay(delayMs)}</span>
-              </div>
+            <NumberInput
+              label="Delay Duration"
+              value={delayMs}
+              onChange={(value) => handleDelayMsChange(String(value || 1000))}
+              min={100}
+              step={100}
+              placeholder="1000"
+            />
+            <div className="text-xs text-gray-500 mt-1">
+              Duration in milliseconds. Current:{" "}
+              <span className="font-medium">{formatDelay(delayMs)}</span>
             </div>
           </div>
 
@@ -117,73 +108,42 @@ const DelayForm: React.FC<DelayFormProps> = ({
               Custom Duration
             </label>
             <div className="grid grid-cols-3 gap-2">
-              <div>
-                <label className="block text-xs text-gray-600 mb-1">
-                  Seconds
-                </label>
-                <input
-                  type="number"
-                  value={Math.round(delayMs / 1000)}
-                  onChange={(e) =>
-                    updateConfig(
-                      "delayMs",
-                      (parseInt(e.target.value) || 0) * 1000
-                    )
-                  }
-                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                  min="0"
-                  step="1"
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-600 mb-1">
-                  Minutes
-                </label>
-                <input
-                  type="number"
-                  value={Math.round(delayMs / 60000)}
-                  onChange={(e) =>
-                    updateConfig(
-                      "delayMs",
-                      (parseInt(e.target.value) || 0) * 60000
-                    )
-                  }
-                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                  min="0"
-                  step="1"
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-600 mb-1">
-                  Hours
-                </label>
-                <input
-                  type="number"
-                  value={Math.round(delayMs / 3600000)}
-                  onChange={(e) =>
-                    updateConfig(
-                      "delayMs",
-                      (parseInt(e.target.value) || 0) * 3600000
-                    )
-                  }
-                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                  min="0"
-                  step="1"
-                />
-              </div>
+              <NumberInput
+                label="Seconds"
+                labelClassName="block text-xs text-gray-600 mb-1"
+                value={Math.round(delayMs / 1000)}
+                onChange={(value) => updateConfig("delayMs", (value || 0) * 1000)}
+                className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                min={0}
+                step={1}
+              />
+              <NumberInput
+                label="Minutes"
+                labelClassName="block text-xs text-gray-600 mb-1"
+                value={Math.round(delayMs / 60000)}
+                onChange={(value) => updateConfig("delayMs", (value || 0) * 60000)}
+                className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                min={0}
+                step={1}
+              />
+              <NumberInput
+                label="Hours"
+                labelClassName="block text-xs text-gray-600 mb-1"
+                value={Math.round(delayMs / 3600000)}
+                onChange={(value) => updateConfig("delayMs", (value || 0) * 3600000)}
+                className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                min={0}
+                step={1}
+              />
             </div>
           </div>
         </>
       ) : (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Variable Name
-          </label>
-          <input
-            type="text"
+          <TextInput
+            label="Variable Name"
             value={config?.delayVariable || ""}
-            onChange={(e) => updateConfig("delayVariable", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={(value) => updateConfig("delayVariable", value)}
             placeholder="wait_time"
           />
           <div className="text-xs text-gray-500 mt-1">
@@ -201,18 +161,12 @@ const DelayForm: React.FC<DelayFormProps> = ({
         </div>
       )}
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Description
-        </label>
-        <input
-          type="text"
-          value={config?.description || ""}
-          onChange={(e) => updateConfig("description", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Brief pause before next message"
-        />
-      </div>
+      <TextInput
+        label="Description"
+        value={config?.description || ""}
+        onChange={(value) => updateConfig("description", value)}
+        placeholder="Brief pause before next message"
+      />
 
       {/* Preview */}
       <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">

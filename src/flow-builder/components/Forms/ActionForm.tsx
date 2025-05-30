@@ -9,6 +9,7 @@ import {
   EyeSlashIcon,
 } from "@heroicons/react/24/outline";
 import { ActionType, BaseActionConfig } from "@/flow-builder/types/flow.types";
+import { TextInput, Select, Textarea, NumberInput } from "../core";
 
 interface ActionTypeOption {
   value: ActionType;
@@ -168,14 +169,11 @@ const ActionForm: React.FC<ActionFormProps> = ({
         currentActionType === ActionType.WEBHOOK) && (
         <>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              URL
-            </label>
-            <input
+            <TextInput
+              label="URL"
               type="url"
               value={config?.url || ""}
-              onChange={(e) => updateConfig("url", e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onChange={(value) => updateConfig("url", value)}
               placeholder="https://api.example.com/endpoint"
             />
             <div className="text-xs text-gray-500 mt-1">
@@ -183,24 +181,15 @@ const ActionForm: React.FC<ActionFormProps> = ({
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Method
-            </label>
-            <select
-              value={config?.method || "POST"}
-              onChange={(e) =>
-                updateConfig("method", e.target.value as HttpMethod)
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {httpMethods.map((method) => (
-                <option key={method} value={method}>
-                  {method}
-                </option>
-              ))}
-            </select>
-          </div>
+          <Select
+            label="Method"
+            value={config?.method || "POST"}
+            onChange={(value) => updateConfig("method", value as HttpMethod)}
+            options={httpMethods.map((method) => ({
+              value: method,
+              label: method,
+            }))}
+          />
 
           <div>
             <div className="flex items-center justify-between mb-1">
@@ -239,9 +228,9 @@ const ActionForm: React.FC<ActionFormProps> = ({
               </div>
             )}
 
-            <textarea
+            <Textarea
               value={getHeadersString()}
-              onChange={(e) => updateHeaders(e.target.value)}
+              onChange={(value) => updateHeaders(value)}
               rows={4}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
               placeholder="Content-Type: application/json&#10;Authorization: Bearer {{api_token}}"
@@ -256,9 +245,9 @@ const ActionForm: React.FC<ActionFormProps> = ({
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Request Body (JSON)
               </label>
-              <textarea
+              <Textarea
                 value={getBodyString()}
-                onChange={(e) => updateRequestBody(e.target.value)}
+                onChange={(value) => updateRequestBody(value)}
                 rows={6}
                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 font-mono text-sm ${
                   jsonError
@@ -302,41 +291,27 @@ const ActionForm: React.FC<ActionFormProps> = ({
       {/* Email Configuration */}
       {currentActionType === ActionType.EMAIL && (
         <>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              To Email
-            </label>
-            <input
-              type="email"
-              value={config?.to || ""}
-              onChange={(e) => updateConfig("to", e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="{{user.email}} or specific@email.com"
-            />
-          </div>
+          <TextInput
+            label="To Email"
+            type="email"
+            value={config?.to || ""}
+            onChange={(value) => updateConfig("to", value)}
+            placeholder="{{user.email}} or specific@email.com"
+          />
+
+          <TextInput
+            label="Subject"
+            value={config?.subject || ""}
+            onChange={(value) => updateConfig("subject", value)}
+            placeholder="Welcome {{user.name}}!"
+          />
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Subject
-            </label>
-            <input
-              type="text"
-              value={config?.subject || ""}
-              onChange={(e) => updateConfig("subject", e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Welcome {{user.name}}!"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              HTML Body
-            </label>
-            <textarea
+            <Textarea
+              label="HTML Body"
               value={config?.htmlBody || ""}
-              onChange={(e) => updateConfig("htmlBody", e.target.value)}
+              onChange={(value) => updateConfig("htmlBody", value)}
               rows={6}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="<h1>Welcome!</h1><p>Thanks for joining us, {{user.name}}.</p>"
             />
             <div className="text-xs text-gray-500 mt-1">
@@ -345,14 +320,11 @@ const ActionForm: React.FC<ActionFormProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Text Body (Fallback)
-            </label>
-            <textarea
+            <Textarea
+              label="Text Body (Fallback)"
               value={config?.textBody || ""}
-              onChange={(e) => updateConfig("textBody", e.target.value)}
+              onChange={(value) => updateConfig("textBody", value)}
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Welcome! Thanks for joining us, {{user.name}}."
             />
             <div className="text-xs text-gray-500 mt-1">
@@ -387,14 +359,11 @@ const ActionForm: React.FC<ActionFormProps> = ({
       {currentActionType === ActionType.SMS && (
         <>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Phone Number
-            </label>
-            <input
+            <TextInput
+              label="Phone Number"
               type="tel"
               value={config?.phoneNumber || ""}
-              onChange={(e) => updateConfig("phoneNumber", e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onChange={(value) => updateConfig("phoneNumber", value)}
               placeholder="{{user.phone}} or +1234567890"
             />
             <div className="text-xs text-gray-500 mt-1">
@@ -403,14 +372,11 @@ const ActionForm: React.FC<ActionFormProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Message
-            </label>
-            <textarea
+            <Textarea
+              label="Message"
               value={config?.message || ""}
-              onChange={(e) => updateConfig("message", e.target.value)}
+              onChange={(value) => updateConfig("message", value)}
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Welcome {{user.name}}! Your account is ready."
               maxLength={160}
             />

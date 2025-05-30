@@ -4,6 +4,7 @@ import {
   DocumentArrowUpIcon,
 } from "@heroicons/react/24/outline";
 import { ResponseType } from "@/flow-builder/types/flow.types";
+import { ChatTextInput, ChatTextarea } from "../core";
 
 interface InputWidgetProps {
   inputType: ResponseType;
@@ -91,10 +92,10 @@ const InputWidget: React.FC<InputWidgetProps> = ({
     switch (inputType) {
       case ResponseType.TEXT:
         return (
-          <textarea
+          <ChatTextarea
             ref={inputRef as React.RefObject<HTMLTextAreaElement>}
             value={value}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={onChange}
             onKeyPress={handleKeyPress}
             className={`${baseClasses} resize-none`}
             placeholder={placeholder || "Type your message..."}
@@ -110,11 +111,11 @@ const InputWidget: React.FC<InputWidgetProps> = ({
 
       case ResponseType.EMAIL:
         return (
-          <input
+          <ChatTextInput
             ref={inputRef as React.RefObject<HTMLInputElement>}
             type="email"
             value={value}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={onChange}
             onKeyPress={handleKeyPress}
             className={baseClasses}
             placeholder={placeholder || "Enter your email address..."}
@@ -124,11 +125,11 @@ const InputWidget: React.FC<InputWidgetProps> = ({
 
       case ResponseType.PHONE:
         return (
-          <input
+          <ChatTextInput
             ref={inputRef as React.RefObject<HTMLInputElement>}
             type="tel"
             value={value}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={onChange}
             onKeyPress={handleKeyPress}
             className={baseClasses}
             placeholder={placeholder || "Enter your phone number..."}
@@ -138,11 +139,11 @@ const InputWidget: React.FC<InputWidgetProps> = ({
 
       case ResponseType.NUMBER:
         return (
-          <input
+          <ChatTextInput
             ref={inputRef as React.RefObject<HTMLInputElement>}
             type="number"
             value={value}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={onChange}
             onKeyPress={handleKeyPress}
             className={baseClasses}
             placeholder={placeholder || "Enter a number..."}
@@ -187,10 +188,10 @@ const InputWidget: React.FC<InputWidgetProps> = ({
 
       case ResponseType.JSON:
         return (
-          <textarea
+          <ChatTextarea
             ref={inputRef as React.RefObject<HTMLTextAreaElement>}
             value={value}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={onChange}
             onKeyPress={handleKeyPress}
             className={`${baseClasses} font-mono text-sm resize-none`}
             placeholder={placeholder || "Enter JSON data..."}
@@ -205,11 +206,11 @@ const InputWidget: React.FC<InputWidgetProps> = ({
 
       default:
         return (
-          <input
+          <ChatTextInput
             ref={inputRef as React.RefObject<HTMLInputElement>}
             type="text"
             value={value}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={onChange}
             onKeyPress={handleKeyPress}
             className={baseClasses}
             placeholder={placeholder || "Type your response..."}

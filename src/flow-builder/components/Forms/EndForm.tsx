@@ -11,6 +11,7 @@ import {
 } from "@heroicons/react/24/outline";
 
 import { BaseEndConfig } from "@/flow-builder/types/flow.types";
+import { Textarea } from "../core";
 
 interface ReturnDataTemplate {
   name: string;
@@ -164,14 +165,11 @@ const EndForm: React.FC<EndFormProps> = ({ selectedNode, updateConfig }) => {
   return (
     <>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Completion Message
-        </label>
-        <textarea
+        <Textarea
+          label="Completion Message"
           value={config?.message || ""}
-          onChange={(e) => updateConfig("message", e.target.value)}
+          onChange={(value) => updateConfig("message", value)}
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Thank you for completing the flow!"
         />
         <div className="text-xs text-gray-500 mt-1">
@@ -240,9 +238,9 @@ const EndForm: React.FC<EndFormProps> = ({ selectedNode, updateConfig }) => {
           </div>
         )}
 
-        <textarea
+        <Textarea
           value={getReturnDataString()}
-          onChange={(e) => updateReturnData(e.target.value)}
+          onChange={(value) => updateReturnData(value)}
           rows={8}
           className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 font-mono text-sm ${
             jsonError

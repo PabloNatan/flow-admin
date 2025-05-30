@@ -8,6 +8,7 @@ interface TextareaProps {
   rows?: number;
   label?: string;
   labelClassName?: string;
+  maxLength?: number;
 }
 
 export const Textarea: React.FC<TextareaProps> = ({
@@ -18,6 +19,7 @@ export const Textarea: React.FC<TextareaProps> = ({
   rows = 3,
   label,
   labelClassName = "block text-sm font-medium text-gray-700 mb-1",
+  maxLength,
 }) => {
   return (
     <div>
@@ -28,6 +30,7 @@ export const Textarea: React.FC<TextareaProps> = ({
         rows={rows}
         className={className}
         placeholder={placeholder}
+        maxLength={maxLength}
       />
     </div>
   );

@@ -11,6 +11,7 @@ import {
   BaseMessageConfig,
   MessageType,
 } from "@/flow-builder/types/flow.types";
+import { Select, Textarea, TextInput, NumberInput } from "../core";
 
 interface MessageTypeOption {
   value: MessageType;
@@ -40,42 +41,33 @@ const MessageForm: React.FC<MessageFormProps> = ({
 
   return (
     <>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Message Type
-        </label>
-        <select
-          value={currentType}
-          onChange={(e) =>
-            updateConfig("messageType", e.target.value as MessageType)
-          }
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          {messageTypes.map((type) => (
-            <option key={type.value} value={type.value}>
-              {type.label}
-            </option>
-          ))}
-        </select>
-      </div>
+      <Select
+        label="Message Type"
+        value={currentType}
+        onChange={(value) => updateConfig("messageType", value as MessageType)}
+        options={messageTypes.map((type) => ({
+          value: type.value,
+          label: type.label,
+        }))}
+      />
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Content
         </label>
         {currentType === MessageType.JSON ? (
-          <textarea
+          <Textarea
             value={
               typeof config?.content === "object"
                 ? JSON.stringify(config.content, null, 2)
                 : config?.content || ""
             }
-            onChange={(e) => {
+            onChange={(value) => {
               try {
-                const jsonData = JSON.parse(e.target.value);
+                const jsonData = JSON.parse(value);
                 updateConfig("content", jsonData);
               } catch {
-                updateConfig("content", e.target.value);
+                updateConfig("content", value);
               }
             }}
             rows={6}
@@ -83,11 +75,10 @@ const MessageForm: React.FC<MessageFormProps> = ({
             placeholder='{"type": "card", "title": "Welcome", "buttons": ["Get Started"]}'
           />
         ) : (
-          <textarea
+          <Textarea
             value={typeof config?.content === "string" ? config.content : ""}
-            onChange={(e) => updateConfig("content", e.target.value)}
+            onChange={(value) => updateConfig("content", value)}
             rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Enter message content... Use {{variable}} for dynamic content"
           />
         )}
@@ -100,47 +91,29 @@ const MessageForm: React.FC<MessageFormProps> = ({
         currentType === MessageType.AUDIO ||
         currentType === MessageType.FILE) && (
         <>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              File URL
-            </label>
-            <input
-              type="url"
-              value={config?.fileUrl || ""}
-              onChange={(e) => updateConfig("fileUrl", e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="https://example.com/file.jpg"
-            />
-          </div>
+          <TextInput
+            label="File URL"
+            type="url"
+            value={config?.fileUrl || ""}
+            onChange={(value) => updateConfig("fileUrl", value)}
+            placeholder="https://example.com/file.jpg"
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              File Name
-            </label>
-            <input
-              type="text"
-              value={config?.fileName || ""}
-              onChange={(e) => updateConfig("fileName", e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="filename.jpg"
-            />
-          </div>
+          <TextInput
+            label="File Name"
+            value={config?.fileName || ""}
+            onChange={(value) => updateConfig("fileName", value)}
+            placeholder="filename.jpg"
+          />
 
           {currentType === MessageType.FILE && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                File Size (bytes)
-              </label>
-              <input
-                type="number"
-                value={config?.fileSize || ""}
-                onChange={(e) =>
-                  updateConfig("fileSize", parseInt(e.target.value) || 0)
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="1024000"
-              />
-            </div>
+            <NumberInput
+              label="File Size (bytes)"
+              value={config?.fileSize || ""}
+              onChange={(value) => updateConfig("fileSize", value || 0)}
+              parseFunction={(val) => parseInt(val) || 0}
+              placeholder="1024000"
+            />
           )}
         </>
       )}
