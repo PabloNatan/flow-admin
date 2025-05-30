@@ -76,22 +76,40 @@ const CustomNode: React.FC<NodeProps<CustomNodeData>> = ({
       )}
 
       {/* Multiple output handles for condition nodes */}
-      {data.type === NodeType.CONDITION &&
-        (data.config as BaseConditionConfig)?.conditions?.map(
-          (condition, index) => (
+      {data.type === NodeType.CONDITION && (
+        <>
+          {/* Handles for individual conditions */}
+          {(data.config as BaseConditionConfig)?.conditions?.map(
+            (condition, index) => (
+              <Handle
+                key={condition.id}
+                type="source"
+                position={Position.Right}
+                id={condition.id}
+                style={{
+                  top: `${30 + index * 20}px`,
+                  background: nodeConfig?.color,
+                }}
+                className="w-3 h-3 border-2 border-white"
+              />
+            )
+          )}
+          {/* Handle for default condition */}
+          {(data.config as BaseConditionConfig)?.defaultCondition && (
             <Handle
-              key={condition.id}
+              key="default"
               type="source"
               position={Position.Right}
-              id={condition.id}
+              id={(data.config as BaseConditionConfig).defaultCondition.id}
               style={{
-                top: `${30 + index * 20}px`,
-                background: nodeConfig?.color,
+                top: `${30 + ((data.config as BaseConditionConfig)?.conditions?.length || 0) * 20}px`,
+                background: "#6b7280", // Gray color for default condition
               }}
               className="w-3 h-3 border-2 border-white"
             />
-          )
-        )}
+          )}
+        </>
+      )}
     </div>
   );
 };

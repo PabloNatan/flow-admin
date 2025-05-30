@@ -135,7 +135,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 mb-10 pb-10">
             {activeTab === "config" && (
               <>
                 <TextInput

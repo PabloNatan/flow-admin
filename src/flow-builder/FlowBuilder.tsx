@@ -70,7 +70,7 @@ const FlowBuilder: React.FC = () => {
   const onConnect: OnConnect = useCallback(
     (params: Connection) => {
       if (!params.source || !params.target) return;
-      
+
       const newEdge: Edge = {
         id: `edge-${Date.now()}`,
         source: params.source,
@@ -155,6 +155,7 @@ const FlowBuilder: React.FC = () => {
   // Update node data
   const onUpdateNode = useCallback(
     (nodeId: string, newData: any): void => {
+      console.log(newData);
       setNodes((nds: Node[]) =>
         nds.map((node: Node) =>
           node.id === nodeId ? { ...node, data: newData } : node
