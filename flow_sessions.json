@@ -1,0 +1,86 @@
+{
+  "data": [
+    {
+      "sessionId": "cmbbpvl7n0001rxhpiiv5szbs",
+      "status": "PAUSED",
+      "currentNodeId": "cmbbidr510007rxcxkr3ixn1l",
+      "waitingForInput": false,
+      "createdAt": "2025-05-31T04:13:27.971Z",
+      "updatedAt": "2025-05-31T04:20:58.819Z"
+    },
+    {
+      "sessionId": "cmbbpqp3g0001rxdyeycmsahk",
+      "status": "ERROR",
+      "currentNodeId": "cmbbidr510007rxcxkr3ixn1l",
+      "waitingForInput": false,
+      "createdAt": "2025-05-31T04:09:39.724Z",
+      "updatedAt": "2025-05-31T04:09:42.010Z"
+    },
+    {
+      "sessionId": "cmbbp7ga70001rxwaiu65vsbc",
+      "status": "ERROR",
+      "currentNodeId": "cmbbidr510007rxcxkr3ixn1l",
+      "waitingForInput": false,
+      "createdAt": "2025-05-31T03:54:41.839Z",
+      "updatedAt": "2025-05-31T03:54:44.078Z"
+    },
+    {
+      "sessionId": "cmbboyq910009rxbea9q6qaw7",
+      "status": "ERROR",
+      "currentNodeId": "cmbbidr510007rxcxkr3ixn1l",
+      "waitingForInput": false,
+      "createdAt": "2025-05-31T03:47:54.854Z",
+      "updatedAt": "2025-05-31T03:47:57.018Z"
+    },
+    {
+      "sessionId": "cmbbovr610001rxbebenab6pi",
+      "status": "ERROR",
+      "currentNodeId": "cmbbidr510007rxcxkr3ixn1l",
+      "waitingForInput": false,
+      "createdAt": "2025-05-31T03:45:36.073Z",
+      "updatedAt": "2025-05-31T03:45:38.317Z"
+    },
+    {
+      "sessionId": "cmbbmorlp0001rx3x3oqp0uod",
+      "status": "ERROR",
+      "currentNodeId": "cmbbidr510007rxcxkr3ixn1l",
+      "waitingForInput": false,
+      "createdAt": "2025-05-31T02:44:10.813Z",
+      "updatedAt": "2025-05-31T02:44:13.095Z"
+    },
+    {
+      "sessionId": "cmbblc36q0001rx9mvzbk9tb0",
+      "status": "ERROR",
+      "currentNodeId": "cmbbidr510007rxcxkr3ixn1l",
+      "waitingForInput": false,
+      "createdAt": "2025-05-31T02:06:19.682Z",
+      "updatedAt": "2025-05-31T02:06:21.957Z"
+    },
+    {
+      "sessionId": "cmbblb0x10001rx8g9iw2xfjt",
+      "status": "ERROR",
+      "currentNodeId": "cmbbidr510007rxcxkr3ixn1l",
+      "waitingForInput": false,
+      "createdAt": "2025-05-31T02:05:30.085Z",
+      "updatedAt": "2025-05-31T02:05:32.407Z"
+    },
+    {
+      "sessionId": "cmbbl9d6g0001rx5f2jrz9ptl",
+      "status": "ERROR",
+      "currentNodeId": "cmbbidr510007rxcxkr3ixn1l",
+      "waitingForInput": false,
+      "createdAt": "2025-05-31T02:04:12.664Z",
+      "updatedAt": "2025-05-31T02:04:14.924Z"
+    },
+    {
+      "sessionId": "cmbbl6yjp0001rxt36cclayk9",
+      "status": "ERROR",
+      "currentNodeId": "cmbbidr510007rxcxkr3ixn1l",
+      "waitingForInput": false,
+      "createdAt": "2025-05-31T02:02:20.389Z",
+      "updatedAt": "2025-05-31T02:02:22.647Z"
+    }
+  ],
+  "currentPage": 1,
+  "totalCountOfRegisters": 14
+}

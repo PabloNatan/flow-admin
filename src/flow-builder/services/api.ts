@@ -203,6 +203,89 @@ export const flowApi = {
     });
     return handleResponse(response);
   },
+
+  // Get sessions for a specific flow
+  async getFlowSessions(
+    flowId: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<{
+    data: Array<{
+      sessionId: string;
+      status: "RUNNING" | "PAUSED" | "COMPLETED" | "ERROR";
+      currentNodeId: string;
+      waitingForInput: boolean;
+      createdAt: string;
+      updatedAt: string;
+    }>;
+    currentPage: number;
+    totalCountOfRegisters: number;
+  }> {
+    const response = await fetch(
+      `${API_BASE_URL}/flows/${flowId}/sessions?page=${page}&limit=${limit}`,
+      {
+        method: "GET",
+        headers: getHeaders(),
+      }
+    );
+    return handleResponse(response);
+  },
+
+  // Get flow session with complete details (flow + session + nodes + edges)
+  async getFlowSession(sessionId: string): Promise<{
+    id: string;
+    name: string;
+    description: string;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+    applicationId: string;
+    session: {
+      id: string;
+      flowId: string;
+      userId: string;
+      currentNodeId: string;
+      status: "RUNNING" | "PAUSED" | "COMPLETED" | "ERROR";
+      variables: Record<string, any>;
+      startedAt: string;
+      completedAt: string | null;
+      lastActiveAt: string;
+    };
+    nodes: Array<{
+      id: string;
+      flowId: string;
+      type:
+        | "TRIGGER"
+        | "MESSAGE"
+        | "INPUT"
+        | "ACTION"
+        | "CONDITION"
+        | "DELAY"
+        | "END";
+      position: { x: number; y: number };
+      config: any;
+      createdAt: string;
+      updatedAt: string;
+    }>;
+    edges: Array<{
+      id: string;
+      flowId: string;
+      sourceId: string;
+      targetId: string;
+      condition: any;
+      label: string | null;
+      createdAt: string;
+    }>;
+  }> {
+    const response = await fetch(
+      `${API_BASE_URL}/flows/sessions/${sessionId}`,
+      {
+        method: "GET",
+        headers: getHeaders(),
+      }
+    );
+    return handleResponse(response);
+  },
 };
 
 // Helper function to transform API node data to React Flow format

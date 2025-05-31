@@ -1,0 +1,147 @@
+{
+  "id": "cmbbidr2z0001rxcxu8ly91ve",
+  "name": "Wellcome",
+  "description": "A simple welcome flow with user input",
+  "isActive": true,
+  "createdAt": "2025-05-31T00:43:38.460Z",
+  "updatedAt": "2025-05-31T00:57:53.962Z",
+  "applicationId": "cmbbcyfym0000rx57oja4idel",
+  "session": {
+    "id": "cmbbpvl7n0001rxhpiiv5szbs",
+    "flowId": "cmbbidr2z0001rxcxu8ly91ve",
+    "userId": "some-id",
+    "currentNodeId": "cmbbidr510007rxcxkr3ixn1l",
+    "status": "PAUSED",
+    "variables": {
+      "trigger_event": "webhook_received",
+      "trigger_timestamp": "2025-05-31T04:13:28.442Z"
+    },
+    "startedAt": "2025-05-31T04:13:27.971Z",
+    "completedAt": null,
+    "lastActiveAt": "2025-05-31T04:20:58.819Z"
+  },
+  "nodes": [
+    {
+      "id": "cmbbidr510003rxcx75h9h5ze",
+      "flowId": "cmbbidr2z0001rxcxu8ly91ve",
+      "type": "TRIGGER",
+      "position": {
+        "x": 100,
+        "y": 100
+      },
+      "config": {
+        "event": "webhook_received",
+        "conditions": {}
+      },
+      "createdAt": "2025-05-31T00:43:38.533Z",
+      "updatedAt": "2025-05-31T00:43:38.533Z"
+    },
+    {
+      "id": "cmbbidr510005rxcx85qeeuyk",
+      "flowId": "cmbbidr2z0001rxcxu8ly91ve",
+      "type": "MESSAGE",
+      "position": {
+        "x": 100,
+        "y": 200
+      },
+      "config": {
+        "messageType": "TEXT",
+        "content": "Welcome! What's your name?",
+        "template": "Hello"
+      },
+      "createdAt": "2025-05-31T00:43:38.533Z",
+      "updatedAt": "2025-05-31T00:43:38.533Z"
+    },
+    {
+      "id": "cmbbidr510007rxcxkr3ixn1l",
+      "flowId": "cmbbidr2z0001rxcxu8ly91ve",
+      "type": "INPUT",
+      "position": {
+        "x": 100,
+        "y": 300
+      },
+      "config": {
+        "responseType": "TEXT",
+        "prompt": "Please enter your name:",
+        "validation": {
+          "required": true,
+          "minLength": 2,
+          "maxLength": 50
+        }
+      },
+      "createdAt": "2025-05-31T00:43:38.533Z",
+      "updatedAt": "2025-05-31T00:43:38.533Z"
+    },
+    {
+      "id": "cmbbidr510009rxcxh97pocwh",
+      "flowId": "cmbbidr2z0001rxcxu8ly91ve",
+      "type": "MESSAGE",
+      "position": {
+        "x": 100,
+        "y": 400
+      },
+      "config": {
+        "messageType": "TEXT",
+        "content": "Nice to meet you!",
+        "variables": [
+          "user_name"
+        ]
+      },
+      "createdAt": "2025-05-31T00:43:38.533Z",
+      "updatedAt": "2025-05-31T00:43:38.533Z"
+    },
+    {
+      "id": "cmbbidr51000brxcxl6lmpai2",
+      "flowId": "cmbbidr2z0001rxcxu8ly91ve",
+      "type": "END",
+      "position": {
+        "x": 100,
+        "y": 500
+      },
+      "config": {
+        "message": "Thank you for using our service!",
+        "saveSession": true
+      },
+      "createdAt": "2025-05-31T00:43:38.533Z",
+      "updatedAt": "2025-05-31T00:43:38.533Z"
+    }
+  ],
+  "edges": [
+    {
+      "id": "cmbbidrb1000drxcxhuclwbas",
+      "flowId": "cmbbidr2z0001rxcxu8ly91ve",
+      "sourceId": "cmbbidr510003rxcx75h9h5ze",
+      "targetId": "cmbbidr510005rxcx85qeeuyk",
+      "condition": null,
+      "label": null,
+      "createdAt": "2025-05-31T00:43:38.749Z"
+    },
+    {
+      "id": "cmbbidrb1000frxcxzc8r4z5n",
+      "flowId": "cmbbidr2z0001rxcxu8ly91ve",
+      "sourceId": "cmbbidr510005rxcx85qeeuyk",
+      "targetId": "cmbbidr510007rxcxkr3ixn1l",
+      "condition": null,
+      "label": null,
+      "createdAt": "2025-05-31T00:43:38.749Z"
+    },
+    {
+      "id": "cmbbidrb1000hrxcxpn7s973u",
+      "flowId": "cmbbidr2z0001rxcxu8ly91ve",
+      "sourceId": "cmbbidr510007rxcxkr3ixn1l",
+      "targetId": "cmbbidr510009rxcxh97pocwh",
+      "condition": null,
+      "label": null,
+      "createdAt": "2025-05-31T00:43:38.749Z"
+    },
+    {
+      "id": "cmbbidrb1000jrxcxe3j934nl",
+      "flowId": "cmbbidr2z0001rxcxu8ly91ve",
+      "sourceId": "cmbbidr510009rxcxh97pocwh",
+      "targetId": "cmbbidr51000brxcxl6lmpai2",
+      "condition": null,
+      "label": null,
+      "createdAt": "2025-05-31T00:43:38.749Z"
+    }
+  ]
+}

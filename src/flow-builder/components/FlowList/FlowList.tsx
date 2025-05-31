@@ -11,6 +11,7 @@ import {
   DocumentDuplicateIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  ClipboardDocumentListIcon,
 } from "@heroicons/react/24/outline";
 import { flowApi, ApiError } from "../../services/api";
 import { FlowListResponse } from "../../types/flow.types";
@@ -19,6 +20,7 @@ interface FlowListProps {
   onCreateNew: () => void;
   onEditFlow: (flowId: string) => void;
   onViewFlow: (flowId: string) => void;
+  onViewSessions?: (flowId?: string) => void;
 }
 
 interface FlowSummary {
@@ -36,6 +38,7 @@ const FlowList: React.FC<FlowListProps> = ({
   onCreateNew,
   onEditFlow,
   onViewFlow,
+  onViewSessions,
 }) => {
   const [flows, setFlows] = useState<FlowSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -213,13 +216,15 @@ const FlowList: React.FC<FlowListProps> = ({
                 Create and manage your automated flows
               </p>
             </div>
-            <button
-              onClick={onCreateNew}
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2"
-            >
-              <PlusIcon className="w-4 h-4" />
-              Create New Flow
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={onCreateNew}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2"
+              >
+                <PlusIcon className="w-4 h-4" />
+                Create New Flow
+              </button>
+            </div>
           </div>
 
           {/* Filters and Search */}
@@ -356,6 +361,16 @@ const FlowList: React.FC<FlowListProps> = ({
                         >
                           <PencilIcon className="w-4 h-4" />
                         </button>
+
+                        {onViewSessions && (
+                          <button
+                            onClick={() => onViewSessions(flow.id)}
+                            className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-md transition-colors"
+                            title="View flow sessions"
+                          >
+                            <ClipboardDocumentListIcon className="w-4 h-4" />
+                          </button>
+                        )}
 
                         <button
                           onClick={() => handleDuplicateFlow(flow.id)}
