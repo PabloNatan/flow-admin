@@ -87,7 +87,7 @@ export const flowApi = {
     }
   ): Promise<FlowResponse> {
     const response = await fetch(`${API_BASE_URL}/flows/${flowId}`, {
-      method: "PATCH",
+      method: "PUT",
       headers: getHeaders(),
       body: JSON.stringify(flowData),
     });
@@ -304,6 +304,8 @@ export const transformReactFlowNodeToApi = (reactFlowNode: any) => ({
   id: reactFlowNode.id,
   type: reactFlowNode.data.type,
   position: reactFlowNode.position,
+  updated: reactFlowNode?.updated,
+  create: reactFlowNode?.create,
   config: reactFlowNode.data.config,
 });
 

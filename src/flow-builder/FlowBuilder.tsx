@@ -49,10 +49,12 @@ interface FlowBuilderProps {
   onBackToList?: () => void;
 }
 
+type CustonNode = Node & { updated?: boolean; create?: boolean };
+
 const FlowBuilder: React.FC<FlowBuilderProps> = ({ flowId, onBackToList }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [selectedNode, setSelectedNode] = useState<CustonNode | null>(null);
   const [flowName, setFlowName] = useState<string>("New Flow");
   const [flowId_state, setFlowId] = useState<string | null>();
   const [flowDescription, setFlowDescription] = useState<string>("");
@@ -222,10 +224,11 @@ const FlowBuilder: React.FC<FlowBuilderProps> = ({ flowId, onBackToList }) => {
       position: { x: number; y: number } = { x: 100, y: 100 }
     ): void => {
       const nodeConfig = nodeTypes.find((nt) => nt.type === type);
-      const newNode: Node = {
+      const newNode: CustonNode = {
         id: `node-${Date.now()}`,
         type: "custom",
         position,
+        create: true,
         data: {
           type,
           config: {
@@ -246,13 +249,13 @@ const FlowBuilder: React.FC<FlowBuilderProps> = ({ flowId, onBackToList }) => {
     (nodeId: string, newData: any): void => {
       setNodes((nds: Node[]) =>
         nds.map((node: Node) =>
-          node.id === nodeId ? { ...node, data: newData } : node
+          node.id === nodeId ? { ...node, data: newData, updated: true } : node
         )
       );
 
       // Update selected node if it's the one being updated
       if (selectedNode?.id === nodeId) {
-        setSelectedNode({ ...selectedNode, data: newData });
+        setSelectedNode({ ...selectedNode, data: newData, updated: true });
       }
 
       markDirty();
