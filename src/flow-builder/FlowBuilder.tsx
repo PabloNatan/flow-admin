@@ -29,7 +29,7 @@ import {
   transformApiEdgeToReactFlow,
   transformReactFlowNodeToApi,
   transformReactFlowEdgeToApi,
-} from "./services/api";
+} from "./services";
 import { getDefaultConfig, nodeTypes } from "./types/nodeType.types";
 import FlowToolbar from "./components/FlowBuilder/FlowToolbar";
 import NodePalette from "./components/FlowBuilder/NodePalette";

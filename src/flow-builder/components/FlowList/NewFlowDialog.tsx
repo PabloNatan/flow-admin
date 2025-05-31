@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Controller, useForm } from "react-hook-form";
-import { flowApi, ApiError } from "../../services/api";
+import { flowApi, ApiError } from "../../services";
 import { NodeType } from "../../types/flow.types";
 import { getDefaultConfig } from "../../types/nodeType.types";
 import { TextInput } from "../core";

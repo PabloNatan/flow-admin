@@ -1,290 +1,124 @@
 import { FlowListResponse, FlowResponse } from "../types/flow.types";
 import { MarkerType } from "reactflow";
-
-// API Configuration
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000";
-const API_KEY = process.env.NEXT_PUBLIC_API_KEY || "your-api-key";
-const APPLICATION_ID = process.env.NEXT_PUBLIC_APP_ID!;
-
-// Default headers for API requests
-const getHeaders = () => ({
-  "Content-Type": "application/json",
-  "x-api-key": API_KEY,
-  "x-application-id": APPLICATION_ID,
-});
-
-// API Error handling
-export class ApiError extends Error {
-  constructor(public status: number, message: string) {
-    super(message);
-    this.name = "ApiError";
-  }
-}
-
-const handleResponse = async (response: Response) => {
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new ApiError(
-      response.status,
-      errorData.message || `HTTP ${response.status}: ${response.statusText}`
-    );
-  }
-  return response.json();
-};
+import {
+  PaginationParams,
+  PaginatedResponse,
+  CreateFlowRequest,
+  UpdateFlowRequest,
+  FlowValidationResponse,
+  TestFlowRequest,
+  TestFlowResponse,
+  ContinueSessionRequest,
+  FlowSessionData,
+  FlowSessionResponse,
+} from "./api.types";
+import { apiClient } from "./api.config";
 
 // Flow API Service
 export const flowApi = {
   // List all flows with pagination
   async listFlows(
-    page: number = 1,
-    limit: number = 10
+    params: PaginationParams = { page: 1, limit: 10 }
   ): Promise<FlowListResponse> {
-    const response = await fetch(
-      `${API_BASE_URL}/flows?page=${page}&limit=${limit}`,
-      {
-        method: "GET",
-        headers: getHeaders(),
-      }
-    );
-    return handleResponse(response);
+    const response = await apiClient.get("/flows", { params });
+    return response.data;
   },
 
   // Get flow by ID
   async getFlow(flowId: string): Promise<FlowResponse> {
-    const response = await fetch(`${API_BASE_URL}/flows/${flowId}`, {
-      method: "GET",
-      headers: getHeaders(),
-    });
-    return handleResponse(response);
+    const response = await apiClient.get(`/flows/${flowId}`);
+    return response.data;
   },
 
   // Create new flow
-  async createFlow(flowData: {
-    name: string;
-    description?: string;
-    nodes: any[];
-    edges: any[];
-    variables?: any[];
-  }): Promise<FlowResponse> {
-    const response = await fetch(`${API_BASE_URL}/flows`, {
-      method: "POST",
-      headers: getHeaders(),
-      body: JSON.stringify(flowData),
-    });
-    return handleResponse(response);
+  async createFlow(flowData: CreateFlowRequest): Promise<FlowResponse> {
+    const response = await apiClient.post("/flows", flowData);
+    return response.data;
   },
 
   // Update existing flow
   async updateFlow(
     flowId: string,
-    flowData: {
-      name?: string;
-      description?: string;
-      nodes?: any[];
-      edges?: any[];
-      variables?: any[];
-    }
+    flowData: UpdateFlowRequest
   ): Promise<FlowResponse> {
-    const response = await fetch(`${API_BASE_URL}/flows/${flowId}`, {
-      method: "PUT",
-      headers: getHeaders(),
-      body: JSON.stringify(flowData),
-    });
-    return handleResponse(response);
+    return apiClient.put(`/flows/${flowId}`, flowData).then(({ data }) => data);
   },
 
   // Delete flow
   async deleteFlow(flowId: string): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/flows/${flowId}`, {
-      method: "DELETE",
-      headers: getHeaders(),
-    });
+    await apiClient.delete(`/flows/${flowId}`);
+  },
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new ApiError(
-        response.status,
-        errorData.message || `HTTP ${response.status}: ${response.statusText}`
-      );
-    }
+  // Active flow
+  async activeFlow(flowId: string): Promise<void> {
+    await apiClient.patch(`/flows/${flowId}`, { isActive: true });
+  },
+
+  // Deactive flow
+  async deactiveFlow(flowId: string): Promise<void> {
+    await apiClient.patch(`/flows/${flowId}`, { isActive: false });
   },
 
   // Validate flow
-  async validateFlow(flowId: string): Promise<{
-    isValid: boolean;
-    errors: string[];
-    warnings: string[];
-    metrics: {
-      nodeCount: number;
-      edgeCount: number;
-      maxDepth: number;
-      hasLoops: boolean;
-      unreachableNodes: string[];
-    };
-  }> {
-    const response = await fetch(`${API_BASE_URL}/flows/${flowId}/validate`, {
-      method: "POST",
-      headers: getHeaders(),
-    });
-    return handleResponse(response);
+  async validateFlow(flowId: string): Promise<FlowValidationResponse> {
+    const response = await apiClient.post(`/flows/${flowId}/validate`);
+    return response.data;
   },
 
   // Test flow execution
   async testFlow(
     flowId: string,
-    testData: {
-      userId?: string;
-      initialVariables?: Record<string, any>;
-    }
-  ): Promise<{
-    sessionId: string;
-    status: string;
-    currentNode: {
-      id: string;
-      type: string;
-      name: string;
-    };
-    result: any;
-    waitingForInput: boolean;
-    variables: Record<string, any>;
-    nextAction: "continue" | "wait_for_input" | "completed";
-  }> {
-    const response = await fetch(`${API_BASE_URL}/flows/${flowId}/test`, {
-      method: "POST",
-      headers: getHeaders(),
-      body: JSON.stringify(testData),
-    });
-    return handleResponse(response);
+    testData: TestFlowRequest
+  ): Promise<TestFlowResponse> {
+    const response = await apiClient.post(`/flows/${flowId}/test`, testData);
+    return response.data;
   },
 
   // Continue flow session
   async continueSession(
     sessionId: string,
-    userResponse: {
-      type: string;
-      content: any;
-    }
+    requestData: ContinueSessionRequest
   ): Promise<any> {
-    const response = await fetch(
-      `${API_BASE_URL}/sessions/${sessionId}/continue`,
-      {
-        method: "POST",
-        headers: getHeaders(),
-        body: JSON.stringify({ userResponse }),
-      }
+    const response = await apiClient.post(
+      `/sessions/${sessionId}/continue`,
+      requestData
     );
-    return handleResponse(response);
+    return response.data;
   },
 
   // Get active flows only
   async getActiveFlows(): Promise<FlowListResponse> {
-    const response = await fetch(`${API_BASE_URL}/flows/active`, {
-      method: "GET",
-      headers: getHeaders(),
-    });
-    return handleResponse(response);
+    const response = await apiClient.get("/flows/active");
+    return response.data;
   },
 
   // Get inactive flows only
   async getInactiveFlows(): Promise<FlowListResponse> {
-    const response = await fetch(`${API_BASE_URL}/flows/inactive`, {
-      method: "GET",
-      headers: getHeaders(),
-    });
-    return handleResponse(response);
+    const response = await apiClient.get("/flows/inactive");
+    return response.data;
   },
 
   // Duplicate flow
   async duplicateFlow(flowId: string): Promise<FlowResponse> {
-    const response = await fetch(`${API_BASE_URL}/flows/${flowId}/duplicate`, {
-      method: "POST",
-      headers: getHeaders(),
-    });
-    return handleResponse(response);
+    const response = await apiClient.post(`/flows/${flowId}/duplicate`);
+    return response.data;
   },
 
   // Get sessions for a specific flow
   async getFlowSessions(
     flowId: string,
-    page: number = 1,
-    limit: number = 10
-  ): Promise<{
-    data: Array<{
-      sessionId: string;
-      status: "RUNNING" | "PAUSED" | "COMPLETED" | "ERROR";
-      currentNodeId: string;
-      waitingForInput: boolean;
-      createdAt: string;
-      updatedAt: string;
-    }>;
-    currentPage: number;
-    totalCountOfRegisters: number;
-  }> {
-    const response = await fetch(
-      `${API_BASE_URL}/flows/${flowId}/sessions?page=${page}&limit=${limit}`,
-      {
-        method: "GET",
-        headers: getHeaders(),
-      }
-    );
-    return handleResponse(response);
+    params: PaginationParams = { page: 1, limit: 10 }
+  ): Promise<PaginatedResponse<FlowSessionData>> {
+    const response = await apiClient.get(`/flows/${flowId}/sessions`, {
+      params,
+    });
+    return response.data;
   },
 
   // Get flow session with complete details (flow + session + nodes + edges)
-  async getFlowSession(sessionId: string): Promise<{
-    id: string;
-    name: string;
-    description: string;
-    isActive: boolean;
-    createdAt: string;
-    updatedAt: string;
-    applicationId: string;
-    session: {
-      id: string;
-      flowId: string;
-      userId: string;
-      currentNodeId: string;
-      status: "RUNNING" | "PAUSED" | "COMPLETED" | "ERROR";
-      variables: Record<string, any>;
-      startedAt: string;
-      completedAt: string | null;
-      lastActiveAt: string;
-    };
-    nodes: Array<{
-      id: string;
-      flowId: string;
-      type:
-        | "TRIGGER"
-        | "MESSAGE"
-        | "INPUT"
-        | "ACTION"
-        | "CONDITION"
-        | "DELAY"
-        | "END";
-      position: { x: number; y: number };
-      config: any;
-      createdAt: string;
-      updatedAt: string;
-    }>;
-    edges: Array<{
-      id: string;
-      flowId: string;
-      sourceId: string;
-      targetId: string;
-      condition: any;
-      label: string | null;
-      createdAt: string;
-    }>;
-  }> {
-    const response = await fetch(
-      `${API_BASE_URL}/flows/sessions/${sessionId}`,
-      {
-        method: "GET",
-        headers: getHeaders(),
-      }
-    );
-    return handleResponse(response);
+  async getFlowSession(sessionId: string): Promise<FlowSessionResponse> {
+    const response = await apiClient.get(`/flows/sessions/${sessionId}`);
+    return response.data;
   },
 };
 

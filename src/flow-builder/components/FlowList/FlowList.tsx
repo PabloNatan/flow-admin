@@ -13,7 +13,7 @@ import {
   ChevronRightIcon,
   ClipboardDocumentListIcon,
 } from "@heroicons/react/24/outline";
-import { flowApi, ApiError } from "../../services/api";
+import { flowApi, ApiError } from "../../services";
 import { FlowListResponse } from "../../types/flow.types";
 
 interface FlowListProps {
@@ -70,7 +70,7 @@ const FlowList: React.FC<FlowListProps> = ({
           response = await flowApi.getInactiveFlows();
           break;
         default:
-          response = await flowApi.listFlows(page, itemsPerPage);
+          response = await flowApi.listFlows({ page, limit: itemsPerPage });
       }
 
       setFlows(response.data);

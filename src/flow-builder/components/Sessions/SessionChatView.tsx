@@ -6,7 +6,7 @@ import {
   ChatBubbleLeftRightIcon,
 } from "@heroicons/react/24/outline";
 import { Node, Edge } from "reactflow";
-import { flowApi } from "../../services/api";
+import { flowApi } from "../../services";
 import SessionChatInterface from "../Chat/SessionChatInterface";
 
 interface SessionChatViewProps {
