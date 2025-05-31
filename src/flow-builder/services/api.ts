@@ -87,7 +87,7 @@ export const flowApi = {
     }
   ): Promise<FlowResponse> {
     const response = await fetch(`${API_BASE_URL}/flows/${flowId}`, {
-      method: "PUT",
+      method: "PATCH",
       headers: getHeaders(),
       body: JSON.stringify(flowData),
     });

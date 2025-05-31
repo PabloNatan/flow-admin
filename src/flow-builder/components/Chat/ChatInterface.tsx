@@ -216,7 +216,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
       case NodeType.CONDITION:
         const conditionConfig = config as BaseConditionConfig;
-        console.log(conditionConfig, currentVariables);
         const conditionResult = evaluateConditions(
           conditionConfig.conditions || [],
           currentVariables
