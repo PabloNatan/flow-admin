@@ -8,8 +8,14 @@ import FlowList from "./components/FlowList/FlowList";
 import NewFlowDialog from "./components/FlowList/NewFlowDialog";
 import SessionList from "./components/Sessions/SessionList";
 import SessionDetail from "./components/Sessions/SessionDetail";
+import SessionChatView from "./components/Sessions/SessionChatView";
 
-type AppView = "list" | "builder" | "sessions" | "session-detail";
+type AppView =
+  | "list"
+  | "builder"
+  | "sessions"
+  | "session-detail"
+  | "session-chat-detail";
 
 interface FlowAppState {
   currentView: AppView;
@@ -22,7 +28,7 @@ interface FlowAppState {
 const FlowApp: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const [state, setState] = useState<FlowAppState>({
     currentView: "list",
     currentFlowId: null,
@@ -33,40 +39,40 @@ const FlowApp: React.FC = () => {
 
   // Initialize state from URL params on mount
   useEffect(() => {
-    const view = searchParams.get('view') as AppView;
-    const flowId = searchParams.get('flowId');
-    const sessionId = searchParams.get('sessionId');
-    const sessionsFlowId = searchParams.get('sessionsFlowId');
+    const view = searchParams.get("view") as AppView;
+    const flowId = searchParams.get("flowId");
+    const sessionId = searchParams.get("sessionId");
+    const sessionsFlowId = searchParams.get("sessionsFlowId");
 
     if (view || flowId || sessionId || sessionsFlowId) {
-      setState({
+      setState((prev) => ({
         currentView: view || "list",
-        currentFlowId: flowId,
-        currentSessionId: sessionId,
-        sessionsFlowId: sessionsFlowId,
+        currentFlowId: flowId ?? prev.currentFlowId,
+        currentSessionId: sessionId ?? prev.currentSessionId,
+        sessionsFlowId: sessionsFlowId ?? prev.sessionsFlowId,
         isNewFlowDialogOpen: false,
-      });
+      }));
     }
   }, [searchParams]);
 
   // Update URL when state changes
   const updateUrl = (newState: Partial<FlowAppState>) => {
     const params = new URLSearchParams();
-    
+
     if (newState.currentView && newState.currentView !== "list") {
-      params.set('view', newState.currentView);
+      params.set("view", newState.currentView);
     }
     if (newState.currentFlowId) {
-      params.set('flowId', newState.currentFlowId);
+      params.set("flowId", newState.currentFlowId);
     }
     if (newState.currentSessionId) {
-      params.set('sessionId', newState.currentSessionId);
+      params.set("sessionId", newState.currentSessionId);
     }
     if (newState.sessionsFlowId) {
-      params.set('sessionsFlowId', newState.sessionsFlowId);
+      params.set("sessionsFlowId", newState.sessionsFlowId);
     }
 
-    const url = params.toString() ? `?${params.toString()}` : '';
+    const url = params.toString() ? `?${params.toString()}` : "";
     router.replace(url);
   };
 
@@ -134,9 +140,12 @@ const FlowApp: React.FC = () => {
     updateUrl(newState);
   };
 
-  const handleViewSessionDetail = (sessionId: string) => {
+  const handleViewSessionDetail = (
+    sessionId: string,
+    detail: "session-detail" | "session-chat-detail"
+  ) => {
     const newState = {
-      currentView: "session-detail" as AppView,
+      currentView: detail as AppView,
       currentSessionId: sessionId,
     };
     setState((prev) => ({ ...prev, ...newState }));
@@ -152,7 +161,6 @@ const FlowApp: React.FC = () => {
     updateUrl(newState);
   };
 
-  console.log(state);
   // Render current view
   const renderCurrentView = () => {
     switch (state.currentView) {
@@ -182,6 +190,15 @@ const FlowApp: React.FC = () => {
             flowId={state.sessionsFlowId || ""}
             onBack={handleShowFlowList}
             onViewSession={handleViewSessionDetail}
+          />
+        );
+
+      case "session-chat-detail":
+        return (
+          <SessionChatView
+            flowId={state.currentFlowId!}
+            sessionId={state.currentSessionId!}
+            onBack={handleBackToSessions}
           />
         );
 

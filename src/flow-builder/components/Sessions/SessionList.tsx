@@ -14,7 +14,10 @@ import { flowApi, ApiError } from "../../services/api";
 interface SessionListProps {
   flowId: string;
   onBack: () => void;
-  onViewSession: (sessionId: string) => void;
+  onViewSession: (
+    sessionId: string,
+    detail: "session-detail" | "session-chat-detail"
+  ) => void;
 }
 
 interface SessionSummary {
@@ -26,8 +29,11 @@ interface SessionSummary {
   updatedAt: string;
 }
 
-
-const SessionList: React.FC<SessionListProps> = ({ flowId, onBack, onViewSession }) => {
+const SessionList: React.FC<SessionListProps> = ({
+  flowId,
+  onBack,
+  onViewSession,
+}) => {
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,14 +43,16 @@ const SessionList: React.FC<SessionListProps> = ({ flowId, onBack, onViewSession
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await flowApi.getFlowSessions(flowId);
       setSessions(response.data);
     } catch (err) {
       if (err instanceof ApiError) {
         setError(`Failed to load sessions: ${err.message}`);
       } else {
-        setError("Failed to load sessions. Please check your connection and try again.");
+        setError(
+          "Failed to load sessions. Please check your connection and try again."
+        );
       }
       console.error("Error loading sessions:", err);
     } finally {
@@ -165,7 +173,9 @@ const SessionList: React.FC<SessionListProps> = ({ flowId, onBack, onViewSession
               <ChevronLeftIcon className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Flow Sessions</h1>
+              <h1 className="text-3xl font-bold text-gray-900">
+                Flow Sessions
+              </h1>
               <p className="text-gray-600 mt-1">
                 View and manage active flow sessions
               </p>
@@ -204,7 +214,9 @@ const SessionList: React.FC<SessionListProps> = ({ flowId, onBack, onViewSession
                       <div className="flex items-center gap-6 text-xs text-gray-500">
                         <span>Node: {session.currentNodeId}</span>
                         <span>
-                          {session.waitingForInput ? "Waiting for input" : "Not waiting"}
+                          {session.waitingForInput
+                            ? "Waiting for input"
+                            : "Not waiting"}
                         </span>
                         <span>Created {formatDate(session.createdAt)}</span>
                         <span>Updated {formatDate(session.updatedAt)}</span>
@@ -213,7 +225,22 @@ const SessionList: React.FC<SessionListProps> = ({ flowId, onBack, onViewSession
 
                     <div className="flex items-center gap-2 ml-4">
                       <button
-                        onClick={() => onViewSession(session.sessionId)}
+                        onClick={() =>
+                          onViewSession(session.sessionId, "session-detail")
+                        }
+                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                        title="View session details"
+                      >
+                        <EyeIcon className="w-4 h-4" />
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          onViewSession(
+                            session.sessionId,
+                            "session-chat-detail"
+                          )
+                        }
                         className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
                         title="View session details"
                       >

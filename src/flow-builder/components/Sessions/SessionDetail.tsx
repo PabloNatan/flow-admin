@@ -9,6 +9,7 @@ import {
   PauseIcon,
   ClockIcon,
   UserIcon,
+  ChatBubbleLeftRightIcon,
 } from "@heroicons/react/24/outline";
 import { flowApi } from "../../services/api";
 
@@ -16,6 +17,7 @@ interface SessionDetailProps {
   flowId: string;
   sessionId: string;
   onBack: () => void;
+  onViewChat?: () => void;
 }
 
 interface SessionNode {
@@ -77,6 +79,7 @@ const SessionDetail: React.FC<SessionDetailProps> = ({
   sessionId,
   flowId,
   onBack,
+  onViewChat,
 }) => {
   const [sessionData, setSessionData] = useState<FlowSession | null>(null);
   const [loading, setLoading] = useState(true);
@@ -244,6 +247,15 @@ const SessionDetail: React.FC<SessionDetailProps> = ({
                 Flow: {sessionData.name} • Session ID: {sessionData.session.id}
               </p>
             </div>
+            {onViewChat && (
+              <button
+                onClick={onViewChat}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              >
+                <ChatBubbleLeftRightIcon className="w-4 h-4" />
+                Chat View
+              </button>
+            )}
           </div>
         </div>
 
