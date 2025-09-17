@@ -6,6 +6,7 @@ import {
   ArrowPathIcon,
   ArrowLeftIcon,
   ExclamationTriangleIcon,
+  PowerIcon,
 } from "@heroicons/react/24/outline";
 
 interface FlowToolbarProps {
@@ -22,6 +23,9 @@ interface FlowToolbarProps {
   error?: string | null;
   onExport?: () => void;
   onImport?: () => void;
+  isActive?: boolean;
+  onToggleActive?: () => void;
+  flowId?: string | null;
 }
 
 const FlowToolbar: React.FC<FlowToolbarProps> = ({
@@ -36,6 +40,9 @@ const FlowToolbar: React.FC<FlowToolbarProps> = ({
   setFlowDescription,
   isDirty = false,
   error,
+  isActive,
+  onToggleActive,
+  flowId,
 }) => {
   return (
     <div className="bg-white border-b border-gray-200 px-4 py-3 shadow-sm">
@@ -94,6 +101,23 @@ const FlowToolbar: React.FC<FlowToolbarProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Activate/Deactivate Button */}
+          {flowId && onToggleActive && (
+            <button
+              onClick={onToggleActive}
+              className={`px-3 py-2 text-sm border rounded-md flex items-center gap-2 transition-colors ${
+                isActive
+                  ? "bg-orange-500 text-white border-orange-500 hover:bg-orange-600"
+                  : "bg-green-500 text-white border-green-500 hover:bg-green-600"
+              }`}
+              disabled={isLoading}
+              title={isActive ? "Deactivate flow" : "Activate flow"}
+            >
+              <PowerIcon className="w-4 h-4" />
+              {isActive ? "Deactivate" : "Activate"}
+            </button>
+          )}
+
           <button
             onClick={onValidate}
             className="px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 flex items-center gap-2 transition-colors"

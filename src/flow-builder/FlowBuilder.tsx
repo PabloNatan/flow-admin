@@ -1,44 +1,27 @@
 "use client";
 
-import React, { useState, useCallback, useRef } from "react";
+import React, { useEffect } from "react";
 import ReactFlow, {
-  addEdge,
-  useNodesState,
-  useEdgesState,
   Controls,
   MiniMap,
   Background,
   MarkerType,
   ConnectionMode,
-  Node,
-  Edge,
-  Connection,
-  ReactFlowInstance,
-  OnConnect,
-  NodeMouseHandler,
-  OnNodesDelete,
-  OnEdgesDelete,
 } from "reactflow";
+import { PlusIcon } from "@heroicons/react/24/outline";
 
-import CustomNode from "./components/Nodes/CustomNode";
-import { FlowVariable, NodeType, VariableType } from "./types/flow.types";
 import {
-  flowApi,
-  ApiError,
-  transformApiNodeToReactFlow,
-  transformApiEdgeToReactFlow,
-  transformReactFlowNodeToApi,
-  transformReactFlowEdgeToApi,
-} from "./services";
-import { getDefaultConfig, nodeTypes } from "./types/nodeType.types";
+  useFlowState,
+  useFlowActions,
+  useFlowValidation,
+  useNodeOperations,
+  useFlowCanvas,
+} from "./hooks";
+import PropertyPanel from "./components/FlowBuilder/PropertyPanel";
 import FlowToolbar from "./components/FlowBuilder/FlowToolbar";
 import NodePalette from "./components/FlowBuilder/NodePalette";
-import PropertyPanel from "./components/FlowBuilder/PropertyPanel";
 import ChatInterface from "./components/Chat/ChatInterface";
-
-// Components
-
-// Types and utilities
+import CustomNode from "./components/Nodes/CustomNode";
 
 const nodeTypes_reactflow = {
   custom: CustomNode,
@@ -49,432 +32,104 @@ interface FlowBuilderProps {
   onBackToList?: () => void;
 }
 
-type CustonNode = Node & { updated?: boolean; create?: boolean };
-
 const FlowBuilder: React.FC<FlowBuilderProps> = ({ flowId, onBackToList }) => {
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [selectedNode, setSelectedNode] = useState<CustonNode | null>(null);
-  const [flowName, setFlowName] = useState<string>("New Flow");
-  const [flowId_state, setFlowId] = useState<string | null>();
-  const [flowDescription, setFlowDescription] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [variables, setVariables] = useState<FlowVariable[]>([]);
-  const [isDirty, setIsDirty] = useState<boolean>(false);
+  // Use custom hooks
+  const flowState = useFlowState();
 
-  // UI state
-  const [isNodePaletteCollapsed, setIsNodePaletteCollapsed] =
-    useState<boolean>(false);
-  const [isPropertyPanelCollapsed, setIsPropertyPanelCollapsed] =
-    useState<boolean>(false);
-  const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
+  const flowActions = useFlowActions({
+    setNodes: flowState.setNodes,
+    setEdges: flowState.setEdges,
+    setFlowName: flowState.setFlowName,
+    setFlowDescription: flowState.setFlowDescription,
+    setVariables: flowState.setVariables,
+    setFlowId: flowState.setFlowId,
+    setIsActive: flowState.setIsActive,
+    setIsDirty: flowState.setIsDirty,
+    setIsLoading: flowState.setIsLoading,
+    setError: flowState.setError,
+    flowName: flowState.flowName,
+    flowDescription: flowState.flowDescription,
+    nodes: flowState.nodes,
+    edges: flowState.edges,
+    variables: flowState.variables,
+    flowId: flowState.flowId,
+    isActive: flowState.isActive,
+  });
 
-  const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const [reactFlowInstance, setReactFlowInstance] =
-    useState<ReactFlowInstance | null>(null);
+  const flowValidation = useFlowValidation({
+    nodes: flowState.nodes,
+    edges: flowState.edges,
+    setIsChatOpen: flowState.setIsChatOpen,
+  });
 
-  // Mark flow as dirty when changes occur
-  const markDirty = useCallback((): void => {
-    setIsDirty(true);
-  }, []);
+  const nodeOperations = useNodeOperations({
+    setNodes: flowState.setNodes,
+    setEdges: flowState.setEdges,
+    setSelectedNode: flowState.setSelectedNode,
+    setVariables: flowState.setVariables,
+    selectedNode: flowState.selectedNode,
+    nodes: flowState.nodes,
+    markDirty: flowState.markDirty,
+  });
 
-  // Load flow data from API
-  const loadFlow = useCallback(
-    async (id: string) => {
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        const response = await flowApi.getFlow(id);
-
-        // Transform API data to React Flow format
-        const transformedNodes = response.nodes.map(
-          transformApiNodeToReactFlow
-        );
-        const transformedEdges = response.edges.map(
-          transformApiEdgeToReactFlow
-        );
-
-        setNodes(transformedNodes);
-        setEdges(transformedEdges);
-        setFlowName(response.name);
-        setFlowDescription(response.description || "");
-        setVariables(response.variables || []);
-        setFlowId(response.id);
-        setIsDirty(false);
-      } catch (err) {
-        if (err instanceof ApiError) {
-          setError(`Failed to load flow: ${err.message}`);
-        } else {
-          setError("Failed to load flow. Please try again.");
-        }
-        console.error("Error loading flow:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [setNodes, setEdges]
-  );
-
-  // Save flow to API
-  const saveFlow = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const flowData = {
-        name: flowName,
-        description: flowDescription,
-        nodes: nodes.map(transformReactFlowNodeToApi),
-        edges: edges.map(transformReactFlowEdgeToApi),
-        variables,
-      };
-
-      let response;
-      if (flowId_state) {
-        response = await flowApi.updateFlow(flowId_state, flowData);
-      } else {
-        response = await flowApi.createFlow(flowData);
-        setFlowId(response.id);
-      }
-
-      setIsDirty(false);
-      return response;
-    } catch (err) {
-      if (err instanceof ApiError) {
-        throw new Error(`Failed to save flow: ${err.message}`);
-      } else {
-        throw new Error("Failed to save flow. Please try again.");
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }, [flowName, flowDescription, nodes, edges, variables, flowId_state]);
-
-  // Handle node selection
-  const onNodeClick: NodeMouseHandler = useCallback((_, node) => {
-    setSelectedNode(node);
-  }, []);
-
-  // Handle edge connection
-  const onConnect: OnConnect = useCallback(
-    (params: Connection) => {
-      if (!params.source || !params.target) return;
-
-      const newEdge: Edge = {
-        id: `edge-${Date.now()}`,
-        source: params.source,
-        target: params.target,
-        sourceHandle: params.sourceHandle,
-        targetHandle: params.targetHandle,
-        type: "smoothstep",
-        animated: true,
-        markerEnd: { type: MarkerType.ArrowClosed },
-      };
-      setEdges((eds: Edge[]) => addEdge(newEdge, eds));
-      markDirty();
-    },
-    [setEdges, markDirty]
-  );
-
-  // Handle canvas click (deselect nodes)
-  const onPaneClick = useCallback((): void => {
-    setSelectedNode(null);
-  }, []);
-
-  // Handle drag and drop from palette
-  const onDragOver = useCallback((event: React.DragEvent): void => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = "move";
-  }, []);
-
-  const onDrop = useCallback(
-    (event: React.DragEvent): void => {
-      event.preventDefault();
-
-      const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
-      const type = event.dataTransfer.getData(
-        "application/reactflow"
-      ) as NodeType;
-
-      if (
-        typeof type === "undefined" ||
-        !type ||
-        !reactFlowInstance ||
-        !reactFlowBounds
-      ) {
-        return;
-      }
-
-      const position = reactFlowInstance.project({
-        x: event.clientX - reactFlowBounds.left,
-        y: event.clientY - reactFlowBounds.top,
-      });
-
-      addNodeToCanvas(type, position);
-    },
-    [reactFlowInstance]
-  );
-
-  // Add node to canvas
-  const addNodeToCanvas = useCallback(
-    (
-      type: NodeType,
-      position: { x: number; y: number } = { x: 100, y: 100 }
-    ): void => {
-      const nodeConfig = nodeTypes.find((nt) => nt.type === type);
-      const newNode: CustonNode = {
-        id: `node-${Date.now()}`,
-        type: "custom",
-        position,
-        create: true,
-        data: {
-          type,
-          config: {
-            ...getDefaultConfig(type),
-            name: nodeConfig?.label || type,
-          },
-        },
-      };
-
-      setNodes((nds: Node[]) => nds.concat(newNode));
-      markDirty();
-    },
-    [setNodes, markDirty]
-  );
-
-  // Update node data
-  const onUpdateNode = useCallback(
-    (nodeId: string, newData: any): void => {
-      setNodes((nds: Node[]) =>
-        nds.map((node: Node) =>
-          node.id === nodeId ? { ...node, data: newData, updated: true } : node
-        )
-      );
-
-      // Update selected node if it's the one being updated
-      if (selectedNode?.id === nodeId) {
-        setSelectedNode({ ...selectedNode, data: newData, updated: true });
-      }
-
-      markDirty();
-    },
-    [selectedNode, setNodes, markDirty]
-  );
-
-  // Handle node deletion
-  const onNodesDelete: OnNodesDelete = useCallback(
-    (deletedNodes) => {
-      const deletedNodeIds = deletedNodes.map((node) => node.id);
-
-      // Remove related edges
-      setEdges((eds: Edge[]) =>
-        eds.filter(
-          (edge: Edge) =>
-            !deletedNodeIds.includes(edge.source) &&
-            !deletedNodeIds.includes(edge.target)
-        )
-      );
-
-      // Clear selection if deleted node was selected
-      if (selectedNode && deletedNodeIds.includes(selectedNode.id)) {
-        setSelectedNode(null);
-      }
-
-      markDirty();
-    },
-    [selectedNode, setEdges, markDirty]
-  );
-
-  // Handle edge deletion
-  const onEdgesDelete: OnEdgesDelete = useCallback(() => {
-    markDirty();
-  }, [markDirty]);
-
-  // Flow actions
-  const handleSave = async (): Promise<void> => {
-    try {
-      await saveFlow();
-      alert("Flow saved successfully!");
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
-      alert("Error saving flow: " + errorMessage);
-    }
-  };
-
-  const handleTest = (): void => {
-    if (nodes.length === 0) {
-      alert("Please add some nodes to test the flow");
-      return;
-    }
-
-    const triggerNodes = nodes.filter((n) => n.data.type === NodeType.TRIGGER);
-    if (triggerNodes.length === 0) {
-      alert("Please add a TRIGGER node to start the flow");
-      return;
-    }
-
-    setIsChatOpen(true);
-  };
-
-  const handleValidate = (): void => {
-    const errors: string[] = [];
-    const warnings: string[] = [];
-
-    // Check for trigger node
-    const triggerNodes = nodes.filter((n) => n.data.type === NodeType.TRIGGER);
-    if (triggerNodes.length === 0) {
-      errors.push("Flow must have at least one TRIGGER node");
-    }
-    if (triggerNodes.length > 1) {
-      warnings.push("Flow has multiple TRIGGER nodes");
-    }
-
-    // Check for end nodes
-    const endNodes = nodes.filter((n) => n.data.type === NodeType.END);
-    if (endNodes.length === 0) {
-      warnings.push("Flow has no END node - users may get stuck");
-    }
-
-    // Check for orphaned nodes
-    nodes.forEach((node) => {
-      const hasIncoming = edges.some((edge) => edge.target === node.id);
-      const hasOutgoing = edges.some((edge) => edge.source === node.id);
-
-      if (!hasIncoming && node.data.type !== NodeType.TRIGGER) {
-        warnings.push(
-          `Node "${node.data.config.name}" has no incoming connections`
-        );
-      }
-      if (!hasOutgoing && node.data.type !== NodeType.END) {
-        warnings.push(
-          `Node "${node.data.config.name}" has no outgoing connections`
-        );
-      }
-    });
-
-    // Check for required configurations
-    nodes.forEach((node) => {
-      const config = node.data.config;
-      switch (node.data.type) {
-        case NodeType.MESSAGE:
-          if (!config.content) {
-            errors.push(`Message node "${config.name}" has no content`);
-          }
-          break;
-        case NodeType.INPUT:
-          if (!config.prompt) {
-            errors.push(`Input node "${config.name}" has no prompt`);
-          }
-          if (!config.variableName) {
-            warnings.push(
-              `Input node "${config.name}" has no variable name - response won't be stored`
-            );
-          }
-          break;
-        case NodeType.CONDITION:
-          if (!config.conditions || config.conditions.length === 0) {
-            errors.push(
-              `Condition node "${config.name}" has no conditions defined`
-            );
-          }
-          break;
-        case NodeType.ACTION:
-          if (
-            !config.url &&
-            (config.actionType === "HTTP_REQUEST" ||
-              config.actionType === "WEBHOOK")
-          ) {
-            errors.push(`Action node "${config.name}" has no URL configured`);
-          }
-          break;
-      }
-    });
-
-    // Create validation message
-    let message = "";
-    if (errors.length > 0) {
-      message = `❌ Validation failed:\n${errors
-        .map((e) => `• ${e}`)
-        .join("\n")}`;
-    } else if (warnings.length > 0) {
-      message = `⚠️ Validation passed with warnings:\n${warnings
-        .map((w) => `• ${w}`)
-        .join("\n")}`;
-    } else {
-      message = "✅ Flow validation successful! No errors or warnings found.";
-    }
-
-    if (warnings.length > 0 && errors.length === 0) {
-      message +=
-        "\n\nWarnings don't prevent flow execution but should be reviewed.";
-    }
-
-    alert(message);
-  };
+  const canvasOperations = useFlowCanvas({
+    setEdges: flowState.setEdges,
+    setSelectedNode: flowState.setSelectedNode,
+    addNodeToCanvas: nodeOperations.addNodeToCanvas,
+    markDirty: flowState.markDirty,
+  });
 
   // Load flow on mount if flowId is provided
-  React.useEffect(() => {
-    if (flowId && flowId !== flowId_state) {
-      loadFlow(flowId);
+  useEffect(() => {
+    if (flowId && flowId !== flowState.flowId) {
+      flowActions.loadFlow(flowId);
     }
-  }, [flowId, flowId_state, loadFlow]);
-
-  // Auto-update variables based on INPUT nodes
-  React.useEffect(() => {
-    const inputNodes = nodes.filter((n) => n.data.type === NodeType.INPUT);
-    const newVariables: FlowVariable[] = inputNodes
-      .filter((node) => node.data.config?.variableName)
-      .map((node) => ({
-        id: `var-${node.id}`,
-        name: node.data.config.variableName,
-        type: VariableType.STRING, // Could be enhanced based on responseType
-        defaultValue: null,
-        nodeId: node.id,
-      }));
-
-    setVariables(newVariables);
-  }, [nodes]);
+  }, [flowId, flowState.flowId, flowActions]);
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       <FlowToolbar
-        onSave={handleSave}
-        onTest={handleTest}
-        onValidate={handleValidate}
+        onSave={flowActions.handleSave}
+        onTest={flowValidation.handleTest}
+        onValidate={flowValidation.handleValidate}
         onBackToList={onBackToList}
-        isLoading={isLoading}
-        flowName={flowName}
-        setFlowName={setFlowName}
-        flowDescription={flowDescription}
-        setFlowDescription={setFlowDescription}
-        isDirty={isDirty}
-        error={error}
+        isLoading={flowState.isLoading}
+        flowName={flowState.flowName}
+        setFlowName={flowState.setFlowName}
+        flowDescription={flowState.flowDescription}
+        setFlowDescription={flowState.setFlowDescription}
+        isDirty={flowState.isDirty}
+        error={flowState.error}
+        isActive={flowState.isActive}
+        onToggleActive={flowActions.handleToggleActive}
+        flowId={flowState.flowId}
       />
 
       <div className="flex-1 flex overflow-hidden">
-        <NodePalette
-          onAddNode={addNodeToCanvas}
-          isCollapsed={isNodePaletteCollapsed}
-          setIsCollapsed={setIsNodePaletteCollapsed}
+        <PropertyPanel
+          selectedNode={flowState.selectedNode}
+          onUpdateNode={nodeOperations.onUpdateNode}
+          variables={flowState.variables}
+          isCollapsed={flowState.isPropertyPanelCollapsed}
+          setIsCollapsed={flowState.setIsPropertyPanelCollapsed}
         />
-
-        <div className="flex-1 relative" ref={reactFlowWrapper}>
+        <div
+          className="flex-1 relative"
+          ref={canvasOperations.reactFlowWrapper}
+        >
           <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            onNodeClick={onNodeClick}
-            onPaneClick={onPaneClick}
-            onNodesDelete={onNodesDelete}
-            onEdgesDelete={onEdgesDelete}
-            onInit={setReactFlowInstance}
-            onDrop={onDrop}
-            onDragOver={onDragOver}
+            nodes={flowState.nodes}
+            edges={flowState.edges}
+            onNodesChange={flowState.onNodesChange}
+            onEdgesChange={flowState.onEdgesChange}
+            onConnect={canvasOperations.onConnect}
+            onNodeClick={nodeOperations.onNodeClick}
+            onPaneClick={canvasOperations.onPaneClick}
+            onNodesDelete={nodeOperations.onNodesDelete}
+            onEdgesDelete={nodeOperations.onEdgesDelete}
+            onInit={canvasOperations.setReactFlowInstance}
+            onDrop={canvasOperations.onDrop}
+            onDragOver={canvasOperations.onDragOver}
             nodeTypes={nodeTypes_reactflow}
             connectionMode={ConnectionMode.Loose}
             fitView
@@ -504,7 +159,7 @@ const FlowBuilder: React.FC<FlowBuilderProps> = ({ flowId, onBackToList }) => {
           </ReactFlow>
 
           {/* Empty state */}
-          {nodes.length === 0 && (
+          {flowState.nodes.length === 0 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="text-center max-w-md mx-auto px-6">
                 <div className="text-6xl mb-4">🎯</div>
@@ -543,42 +198,50 @@ const FlowBuilder: React.FC<FlowBuilderProps> = ({ flowId, onBackToList }) => {
           )}
 
           {/* Flow Statistics Overlay */}
-          {nodes.length > 0 && (
-            <div className="absolute top-4 right-4 bg-white rounded-lg shadow-sm border border-gray-200 px-3 py-2">
+          {flowState.nodes.length > 0 && (
+            <div className="absolute top-4 right-32 bg-white rounded-lg shadow-sm border border-gray-200 px-3 py-2">
               <div className="flex items-center gap-4 text-xs text-gray-600">
                 <span className="flex items-center gap-1">
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  Nodes: {nodes.length}
+                  Nodes: {flowState.nodes.length}
                 </span>
                 <span className="flex items-center gap-1">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  Edges: {edges.length}
+                  Edges: {flowState.edges.length}
                 </span>
                 <span className="flex items-center gap-1">
                   <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  Variables: {variables.length}
+                  Variables: {flowState.variables.length}
                 </span>
               </div>
             </div>
           )}
-        </div>
 
-        <PropertyPanel
-          selectedNode={selectedNode}
-          onUpdateNode={onUpdateNode}
-          variables={variables}
-          isCollapsed={isPropertyPanelCollapsed}
-          setIsCollapsed={setIsPropertyPanelCollapsed}
-        />
+          {/* Floating Add Node Button */}
+          <button
+            onClick={() => flowState.setIsNodePaletteOpen(true)}
+            className="absolute top-3 right-12 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-all duration-200 hover:shadow-xl"
+            title="Add Node"
+          >
+            <PlusIcon className="w-6 h-6" />
+          </button>
+        </div>
       </div>
 
       {/* Chat Testing Interface */}
       <ChatInterface
-        isOpen={isChatOpen}
-        onClose={() => setIsChatOpen(false)}
+        isOpen={flowState.isChatOpen}
+        onClose={() => flowState.setIsChatOpen(false)}
         flowId="test-flow"
-        nodes={nodes}
-        edges={edges}
+        nodes={flowState.nodes}
+        edges={flowState.edges}
+      />
+
+      {/* Node Palette Modal */}
+      <NodePalette
+        isOpen={flowState.isNodePaletteOpen}
+        onClose={() => flowState.setIsNodePaletteOpen(false)}
+        onAddNode={nodeOperations.addNodeToCanvas}
       />
     </div>
   );

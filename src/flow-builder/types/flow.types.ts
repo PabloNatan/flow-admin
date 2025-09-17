@@ -1,5 +1,7 @@
 // Core Flow Types
 
+import { Node } from "reactflow";
+
 export enum NodeType {
   TRIGGER = "TRIGGER",
   MESSAGE = "MESSAGE",
@@ -316,3 +318,5 @@ export interface SessionResponse {
   content: any;
   receivedAt: string;
 }
+
+export type ICustonNode = Node & { updated?: boolean; create?: boolean };
