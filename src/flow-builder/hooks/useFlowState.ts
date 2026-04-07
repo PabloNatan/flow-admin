@@ -1,6 +1,6 @@
-import { useState, useCallback } from "react";
-import { useNodesState, useEdgesState, Node, Edge } from "reactflow";
-import { ICustonNode, FlowVariable } from "../types/flow.types";
+import { useCallback, useState } from "react";
+import { ConnectionLineType, Edge, Node, useEdgesState, useNodesState } from "reactflow";
+import { FlowVariable, ICustonNode } from "../types/flow.types";
 
 interface UseFlowStateReturn {
   // Nodes and edges
@@ -48,8 +48,67 @@ interface UseFlowStateReturn {
 }
 
 export const useFlowState = (): UseFlowStateReturn => {
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState([
+    {
+      id: "node-1768752705653",
+      type: "custom",
+      position: {
+        x: -131,
+        y: 100
+      },
+      data: {
+        type: "TRIGGER",
+        config: {
+          name: "Trigger",
+          event: "manual"
+        }
+      },
+      width: 180,
+      height: 56,
+      selected: false,
+      positionAbsolute: {
+        x: -131,
+        y: 100
+      },
+      dragging: false
+    },
+    {
+      id: "node-1768752710137",
+      type: "custom",
+      position: {
+        x: 113.5,
+        y: 101
+      },
+      data: {
+        type: "MESSAGE",
+        config: {
+          name: "Message",
+          messageType: "TEXT",
+          content: ""
+        }
+      },
+      width: 180,
+      height: 72,
+      selected: true,
+      positionAbsolute: {
+        x: 113.5,
+        y: 101
+      },
+      dragging: true
+    }
+  ]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([
+    {
+      id: "edge-1768752710137",
+      source: "node-1768752705653",
+      target: "node-1768752710137",
+      type: ConnectionLineType.Bezier,
+      markerEnd: undefined,
+      animated: true,
+      zIndex: 1000,
+      
+    }
+  ]);
   const [selectedNode, setSelectedNode] = useState<ICustonNode | null>(null);
   const [flowName, setFlowName] = useState<string>("New Flow");
   const [flowId, setFlowId] = useState<string | null>(null);
@@ -59,6 +118,7 @@ export const useFlowState = (): UseFlowStateReturn => {
   const [variables, setVariables] = useState<FlowVariable[]>([]);
   const [isDirty, setIsDirty] = useState<boolean>(false);
   const [isActive, setIsActive] = useState<boolean>(false);
+
 
   // UI state
   const [isNodePaletteOpen, setIsNodePaletteOpen] = useState<boolean>(false);

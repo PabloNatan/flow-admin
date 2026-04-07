@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import { ReactFlowProvider } from "reactflow";
 import FlowBuilder from "./FlowBuilder";
 import FlowList from "./components/FlowList/FlowList";
 import NewFlowDialog from "./components/FlowList/NewFlowDialog";
-import SessionList from "./components/Sessions/SessionList";
-import SessionDetail from "./components/Sessions/SessionDetail";
 import SessionChatView from "./components/Sessions/SessionChatView";
+import SessionDetail from "./components/Sessions/SessionDetail";
+import SessionList from "./components/Sessions/SessionList";
 
 type AppView =
   | "list"
@@ -30,7 +30,7 @@ const FlowApp: React.FC = () => {
   const searchParams = useSearchParams();
 
   const [state, setState] = useState<FlowAppState>({
-    currentView: "list",
+    currentView: "builder",
     currentFlowId: null,
     currentSessionId: null,
     sessionsFlowId: null,

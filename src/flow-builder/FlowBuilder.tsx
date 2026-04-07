@@ -1,27 +1,27 @@
 "use client";
 
+import { PlusIcon } from "@heroicons/react/24/outline";
 import React, { useEffect } from "react";
 import ReactFlow, {
-  Controls,
-  MiniMap,
   Background,
-  MarkerType,
+  ConnectionLineType,
   ConnectionMode,
+  Controls,
+  MiniMap
 } from "reactflow";
-import { PlusIcon } from "@heroicons/react/24/outline";
 
-import {
-  useFlowState,
-  useFlowActions,
-  useFlowValidation,
-  useNodeOperations,
-  useFlowCanvas,
-} from "./hooks";
-import PropertyPanel from "./components/FlowBuilder/PropertyPanel";
+import ChatInterface from "./components/Chat/ChatInterface";
 import FlowToolbar from "./components/FlowBuilder/FlowToolbar";
 import NodePalette from "./components/FlowBuilder/NodePalette";
-import ChatInterface from "./components/Chat/ChatInterface";
+import PropertyPanel from "./components/FlowBuilder/PropertyPanel";
 import CustomNode from "./components/Nodes/CustomNode";
+import {
+  useFlowActions,
+  useFlowCanvas,
+  useFlowState,
+  useFlowValidation,
+  useNodeOperations,
+} from "./hooks";
 
 const nodeTypes_reactflow = {
   custom: CustomNode,
@@ -131,16 +131,23 @@ const FlowBuilder: React.FC<FlowBuilderProps> = ({ flowId, onBackToList }) => {
             onDrop={canvasOperations.onDrop}
             onDragOver={canvasOperations.onDragOver}
             nodeTypes={nodeTypes_reactflow}
-            connectionMode={ConnectionMode.Loose}
+            connectionMode={ConnectionMode.Strict}
             fitView
             deleteKeyCode={["Backspace", "Delete"]}
             multiSelectionKeyCode={["Meta", "Ctrl"]}
             className="bg-gray-50"
-            defaultEdgeOptions={{
-              type: "smoothstep",
-              animated: true,
-              markerEnd: { type: MarkerType.ArrowClosed },
+            connectionLineType={ConnectionLineType.Bezier}
+            connectionLineStyle={{
+              stroke: "#6366f1",
+              strokeWidth: 2,
+              strokeLinecap: "round",
+              strokeLinejoin: "round",
+              strokeDasharray: "4 4",
+              strokeDashoffset: 0,
+              strokeOpacity: 1,
+              strokeMiterlimit: 10,
             }}
+
           >
             <Controls
               showZoom={true}
